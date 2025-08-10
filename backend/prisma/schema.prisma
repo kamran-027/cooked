@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  // output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -15,10 +15,30 @@ datasource db {
 }
 
 model User {
+  id        Int       @id @default(autoincrement())
+  name      String?
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Booking   Booking[]
+}
+
+model Cook {
   id        Int      @id @default(autoincrement())
   name      String?
-  email     String   @unique
-  password  String
+  rate      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  Booking   Booking?
+}
+
+model Booking {
+  id        Int
+  userId    Int      @unique
+  cookId    Int      @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+  Cook      Cook     @relation(fields: [cookId], references: [id])
 }
