@@ -1,22 +1,85 @@
 import express from "express";
 import { Request, Response } from "express";
 import { addUser } from "../../controllers/userController";
+import bcrypt from "bcrypt";
+import { PrismaClient } from "@prisma/client";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
+dotenv.config();
+
+const client = new PrismaClient();
+const JWTSecret = process.env.JWT_SECRET;
 const userRouter = express.Router();
 
-userRouter.post("/addUser", async (req: Request, res: Response) => {
+userRouter.post("/signup", async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
 
   try {
-    await addUser(name, email, password);
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: "Please provide all the required fields!",
+      });
+    }
 
-    return res.json({
-      message: "User created you bishhh!",
+    const newUser = await addUser(name, email, password);
+
+    const token = jwt.sign(
+      { userId: newUser.id, email: newUser.email },
+      JWTSecret as string,
+      { expiresIn: "1h" }
+    );
+
+    return res.status(201).json({
+      message: "User added successfully!",
+      userId: newUser.id,
+      token,
+    });
+  } catch (error: unknown) {
+    console.error("Error adding user:", error);
+    return res.status(500).json({
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to add user, please try again later.",
+    });
+  }
+});
+
+userRouter.post("/login", async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  try {
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Please provide both email and password!",
+      });
+    }
+
+    const user = await client.user.findUnique({ where: { email } });
+
+    if (!user) return res.status(401).json({ error: "User not found!" });
+
+    //Comparing the provided password with hashedh password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
+
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      JWTSecret as string,
+      { expiresIn: "1h" }
+    );
+
+    return res.status(200).json({
+      message: "Login successful!",
+      email,
+      token,
     });
   } catch (error) {
-    console.error("Error adding user:", error);
-    return res.json({
-      message: "Cannot add user, check details again !!",
+    console.error("Error logging in:", error);
+    return res.status(500).json({
+      message: "Login failed, please try again later.",
     });
   }
 });
