@@ -60,7 +60,7 @@ userRouter.post("/login", async (req: Request, res: Response) => {
 
     if (!user) return res.status(401).json({ error: "User not found!" });
 
-    //Comparing the provided password with hashedh password
+    //Comparing the provided password with hashed password
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
