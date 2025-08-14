@@ -15,7 +15,7 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
+  id        String    @id @default(uuid())
   name      String?
   email     String    @unique
   password  String
@@ -25,7 +25,7 @@ model User {
 }
 
 model Cook {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   name      String?
   rate      Int
   createdAt DateTime @default(now())
@@ -35,8 +35,8 @@ model Cook {
 
 model Booking {
   id        Int
-  userId    Int      @unique
-  cookId    Int      @unique
+  userId    String   @unique
+  cookId    String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   User      User     @relation(fields: [userId], references: [id])

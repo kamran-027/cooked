@@ -4,6 +4,8 @@ import {
   addCook,
   updateCoook,
   deleteCook,
+  getCookById,
+  getCooks,
 } from "../../controllers/adminController";
 
 const adminRouter = express.Router();
@@ -33,7 +35,7 @@ adminRouter.put("/updateCook/:id", async (req: Request, res: Response) => {
 
   try {
     const updatedCook = await updateCoook(
-      Number(id),
+      id,
       req?.body?.name ?? undefined,
       req?.body?.rate ?? undefined
     );
@@ -56,7 +58,7 @@ adminRouter.post("/deleteCook/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const deletedCook = await deleteCook(Number(id));
+    const deletedCook = await deleteCook(id);
     return res.status(200).json({
       message: "Cook deleted successfully!",
       deleteCookId: deletedCook.id,
@@ -68,6 +70,43 @@ adminRouter.post("/deleteCook/:id", async (req: Request, res: Response) => {
         error instanceof Error
           ? error.message
           : "Failed to delete cook, please try again later.",
+    });
+  }
+});
+
+adminRouter.get("/getCook/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const cook = await getCookById(id);
+
+    if (!cook) {
+      return res.status(404).json({ message: "Cook not found!" });
+    }
+
+    return res.status(200).json(cook);
+  } catch (error) {
+    console.error("Error fetching cook:", error);
+    return res.status(500).json({
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch cook, please try again later.",
+    });
+  }
+});
+
+adminRouter.get("/getCooks", async (req: Request, res: Response) => {
+  try {
+    const cooks = await getCooks();
+    return res.status(200).json(cooks);
+  } catch (error) {
+    console.error("Error fetching cooks:", error);
+    return res.status(500).json({
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch cooks, please try again later.",
     });
   }
 });

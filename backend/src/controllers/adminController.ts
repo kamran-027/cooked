@@ -18,7 +18,7 @@ export const addCook = async (name: string, rate: number) => {
   return newCook;
 };
 
-export const updateCoook = async (id: number, name?: string, rate?: number) => {
+export const updateCoook = async (id: string, name?: string, rate?: number) => {
   if (!id) {
     throw new Error("Please provide cook Id!");
   }
@@ -43,7 +43,7 @@ export const updateCoook = async (id: number, name?: string, rate?: number) => {
   return updatedCook;
 };
 
-export const deleteCook = async (id: number) => {
+export const deleteCook = async (id: string) => {
   if (!id) {
     throw new Error("Please provide a valid cook ID!");
   }
@@ -68,7 +68,7 @@ export const getCooks = async () => {
   return cooks;
 };
 
-export const getCookById = async (id: number) => {
+export const getCookById = async (id: string) => {
   if (!id) {
     throw new Error("Please provide a valid cook ID!");
   }
