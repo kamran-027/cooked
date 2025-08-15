@@ -6,6 +6,8 @@ import {
   deleteCook,
   getCookById,
   getCooks,
+  deleteUser,
+  getUsers,
 } from "../../controllers/adminController";
 
 const adminRouter = express.Router();
@@ -107,6 +109,41 @@ adminRouter.get("/getCooks", async (req: Request, res: Response) => {
         error instanceof Error
           ? error.message
           : "Failed to fetch cooks, please try again later.",
+    });
+  }
+});
+
+adminRouter.post("/deleteUser/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const deletedUser = await deleteUser(id);
+    return res.status(200).json({
+      message: "User deleted successfully!",
+      userId: deletedUser.id,
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return res.status(500).json({
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to delete user, please try again later.",
+    });
+  }
+});
+
+adminRouter.get("/getUsers", async (req: Request, res: Response) => {
+  try {
+    const users = await getUsers();
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch users, please try again later.",
     });
   }
 });

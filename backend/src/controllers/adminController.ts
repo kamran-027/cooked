@@ -83,3 +83,28 @@ export const getCookById = async (id: string) => {
 
   return cook;
 };
+
+export const deleteUser = async (id: string) => {
+  if (!id) {
+    throw new Error("Please provide a valid user ID!");
+  }
+
+  const userExists = await client.user.findUnique({
+    where: { id },
+  });
+
+  if (!userExists) {
+    throw new Error("User not found!");
+  }
+
+  const deletedUser = await client.user.delete({
+    where: { id },
+  });
+
+  return deletedUser;
+};
+
+export const getUsers = async () => {
+  const users = await client.user.findMany();
+  return users;
+};

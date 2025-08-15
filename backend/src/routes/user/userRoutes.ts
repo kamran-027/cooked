@@ -5,6 +5,8 @@ import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { getCookById, getCooks } from "../../controllers/adminController";
+import authMiddleware from "../../middlewares/authMiddleware";
 
 dotenv.config();
 
@@ -83,5 +85,40 @@ userRouter.post("/login", async (req: Request, res: Response) => {
     });
   }
 });
+
+userRouter.get(
+  "/getCooks",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const cooks = await getCooks();
+      return res.status(200).json(cooks);
+    } catch (error) {
+      console.error("Error fetching cooks:", error);
+      return res.status(500).json({
+        message: "Failed to fetch cooks, please try again later.",
+      });
+    }
+  }
+);
+
+userRouter.get(
+  "/getCookById/:id",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+      const cook = await getCookById(id);
+
+      return res.status(200).json(cook);
+    } catch (error) {
+      console.error("Error fetching cook:", error);
+      return res.status(500).json({
+        message: "Failed to fetch cook, please try again later.",
+      });
+    }
+  }
+);
 
 export default userRouter;
