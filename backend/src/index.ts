@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import userRouter from "./routes/user/userRoutes";
 import adminRouter from "../src/routes/admin/adminRoutes";
 
@@ -9,6 +10,7 @@ const app = express();
 
 //Adding Middleware for parsing JSON bodies
 app.use(express.json());
+app.use(cors());
 
 app.use("/user", userRouter);
 app.use("/admin", adminRouter);

@@ -1,22 +1,35 @@
-import { Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
-import SignupPage from './pages/SignupPage';
-import SigninPage from './pages/SigninPage';
-import { Toaster } from './components/ui/Toaster';
+import { Routes, Route } from "react-router-dom";
+
+import { Toaster } from "./components/ui/Toaster";
+import SignUp from "./pages/Signup";
+import SignIn from "./pages/Signin";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function App() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        retry: false,
+      },
+    },
+  });
+
   return (
     <>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/signin" element={<SigninPage />} />
-      </Routes>
-      <Toaster />
+      <QueryClientProvider client={queryClient}>
+        <Routes>
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signin" element={<SignIn />} />
+        </Routes>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+          }}
+          richColors={true}
+        />
+      </QueryClientProvider>
     </>
   );
 }
