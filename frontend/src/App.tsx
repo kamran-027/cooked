@@ -4,6 +4,7 @@ import { Toaster } from "./components/ui/Toaster";
 import SignUp from "./pages/Signup";
 import SignIn from "./pages/Signin";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   const queryClient = new QueryClient({
@@ -21,6 +22,7 @@ function App() {
         <Routes>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
         <Toaster
           position="top-right"
