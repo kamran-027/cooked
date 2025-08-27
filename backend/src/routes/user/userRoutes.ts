@@ -73,9 +73,15 @@ userRouter.post("/login", async (req: Request, res: Response) => {
       { expiresIn: "1h" }
     );
 
+    const userDetails = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    };
+
     return res.status(200).json({
       message: "Login successful!",
-      email,
+      user: userDetails,
       token,
     });
   } catch (error) {

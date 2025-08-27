@@ -9,10 +9,13 @@ import { useMutation } from "@tanstack/react-query";
 
 const baseAPIUrl = import.meta.env.VITE_BASE_API_URL;
 
+import { useUser } from "../contexts/UserContext";
+
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { setUser } = useUser();
 
   const signInUser = async () => {
     const res = await axios.post(`${baseAPIUrl}/user/login`, {
@@ -27,6 +30,7 @@ const SignIn = () => {
     mutationFn: signInUser,
     onSuccess(response) {
       sessionStorage.setItem("token", response.token);
+      setUser(response.user);
 
       toast.success("Login Successful!");
       navigate("/dashboard");

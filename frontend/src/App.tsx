@@ -6,6 +6,8 @@ import SignIn from "./pages/Signin";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Dashboard from "./pages/Dashboard";
 
+import { UserProvider } from "./contexts/UserContext";
+
 function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -19,11 +21,13 @@ function App() {
   return (
     <>
       <QueryClientProvider client={queryClient}>
-        <Routes>
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
+        <UserProvider>
+          <Routes>
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Routes>
+        </UserProvider>
         <Toaster
           position="top-right"
           toastOptions={{
