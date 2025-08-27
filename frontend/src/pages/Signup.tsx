@@ -65,7 +65,7 @@ const SignUp = () => {
             <Input
               id="email"
               type="email"
-              placeholder="john.doe@example.com"
+              placeholder="sam.cook@cooked.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
