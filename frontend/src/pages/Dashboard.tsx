@@ -1,5 +1,6 @@
 import AppBar from "@/components/AppBar";
 import Footer from "@/components/Footer";
+import Main from "@/components/Main";
 import UnAuthorizedTemplate from "@/components/UnAuthorizedTemplate";
 
 const Dashboard = () => {
@@ -10,7 +11,7 @@ const Dashboard = () => {
       {isAuthenticated ? (
         <div className="flex flex-col h-screen">
           <AppBar />
-          <div className="h-[80%]">Main</div>
+          <Main />
           <Footer />
         </div>
       ) : (
