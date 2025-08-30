@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "../lib/axios";
 import CookCard from "./CookCard";
+import SkeletonCard from "./SkeletonCard";
+import Error from "./Error";
+import { motion } from "framer-motion";
 
 interface Cook {
   id: string;
@@ -24,22 +27,50 @@ const Main = () => {
   } = useQuery<Cook[]>({ queryKey: ["cooks"], queryFn: fetchCooks });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <main className="flex-1 p-8 bg-gray-50">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-gray-800 mb-8">Our Cooks</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[...Array(8)].map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        </div>
+      </main>
+    );
   }
 
   if (isError) {
-    return <div>Error fetching cooks</div>;
+    return <Error message="Failed to fetch cooks. Please try again later." />;
   }
 
   return (
     <main className="flex-1 p-8 bg-gray-50">
       <div className="container mx-auto">
         <h2 className="text-3xl font-bold text-gray-800 mb-8">Our Cooks</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: {
+              transition: { staggerChildren: 0.1 },
+            },
+          }}
+        >
           {cooks?.map((cook) => (
-            <CookCard key={cook.id} cook={cook} />
+            <motion.div
+              key={cook.id}
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+            >
+              <CookCard cook={cook} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </main>
   );
