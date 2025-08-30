@@ -1,9 +1,6 @@
-
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import api from "../lib/axios";
 import CookCard from "./CookCard";
-
-const baseAPIUrl = import.meta.env.VITE_BASE_API_URL;
 
 interface Cook {
   id: string;
@@ -15,17 +12,16 @@ interface Cook {
 }
 
 const fetchCooks = async () => {
-  const token = sessionStorage.getItem("token");
-  const res = await axios.get(`${baseAPIUrl}/user/getCooks`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const res = await api.get(`/user/getCooks`);
   return res.data;
 };
 
 const Main = () => {
-  const { data: cooks, isLoading, isError } = useQuery<Cook[]>({ queryKey: ["cooks"], queryFn: fetchCooks });
+  const {
+    data: cooks,
+    isLoading,
+    isError,
+  } = useQuery<Cook[]>({ queryKey: ["cooks"], queryFn: fetchCooks });
 
   if (isLoading) {
     return <div>Loading...</div>;

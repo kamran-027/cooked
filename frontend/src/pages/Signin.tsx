@@ -4,10 +4,8 @@ import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import axios from "axios";
+import api from "../lib/axios";
 import { useMutation } from "@tanstack/react-query";
-
-const baseAPIUrl = import.meta.env.VITE_BASE_API_URL;
 
 import { useUser } from "../contexts/UserContext";
 
@@ -18,7 +16,7 @@ const SignIn = () => {
   const { setUser } = useUser();
 
   const signInUser = async () => {
-    const res = await axios.post(`${baseAPIUrl}/user/login`, {
+    const res = await api.post(`/user/login`, {
       email,
       password,
     });

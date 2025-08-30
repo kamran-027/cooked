@@ -29,7 +29,7 @@ userRouter.post("/signup", async (req: Request, res: Response) => {
     const token = jwt.sign(
       { userId: newUser.id, email: newUser.email },
       JWTSecret as string,
-      { expiresIn: "1h" }
+      { expiresIn: "8h" }
     );
 
     return res.status(201).json({
@@ -70,7 +70,7 @@ userRouter.post("/login", async (req: Request, res: Response) => {
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       JWTSecret as string,
-      { expiresIn: "1h" }
+      { expiresIn: "8h" }
     );
 
     const userDetails = {
