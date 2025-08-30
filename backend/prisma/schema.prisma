@@ -25,12 +25,16 @@ model User {
 }
 
 model Cook {
-  id        String   @id @default(uuid())
-  name      String?
-  rate      Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  Booking   Booking?
+  id          String   @id @default(uuid())
+  name        String?
+  email       String   @unique
+  cuisine     String?
+  description String?
+  image       String?
+  rate        Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  Booking     Booking?
 }
 
 model Booking {

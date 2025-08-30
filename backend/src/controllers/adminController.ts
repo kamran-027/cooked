@@ -2,8 +2,15 @@ import { PrismaClient } from "@prisma/client";
 
 const client = new PrismaClient();
 
-export const addCook = async (name: string, rate: number) => {
-  if (!name || !rate) {
+export const addCook = async (
+  name: string,
+  email: string,
+  rate: number,
+  cuisine: string,
+  description: string,
+  image: string
+) => {
+  if (!name || !email || !rate) {
     throw new Error("Please provide all the required fields!");
   }
 
@@ -11,6 +18,10 @@ export const addCook = async (name: string, rate: number) => {
     data: {
       name,
       rate,
+      email,
+      cuisine,
+      description,
+      image,
       updatedAt: new Date(),
     },
   });
@@ -18,10 +29,12 @@ export const addCook = async (name: string, rate: number) => {
   return newCook;
 };
 
-export const updateCoook = async (id: string, name?: string, rate?: number) => {
+export const updateCoook = async (id: string, body: any) => {
   if (!id) {
     throw new Error("Please provide cook Id!");
   }
+
+  const { name, email, rate, cuisine, description, image } = body;
 
   const cookExists = await client.cook.findUnique({
     where: { id },
@@ -36,6 +49,10 @@ export const updateCoook = async (id: string, name?: string, rate?: number) => {
     data: {
       name: name || cookExists.name,
       rate: rate || cookExists.rate,
+      email: email || cookExists.email,
+      cuisine: cuisine || cookExists.cuisine,
+      description: description || cookExists.description,
+      image: image || cookExists.image,
       updatedAt: new Date(),
     },
   });
