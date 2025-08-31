@@ -7,6 +7,8 @@ import {
 } from "./ui/card";
 import { Button } from "./ui/button";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import BookingDialog from "./BookingDialog";
 
 interface Cook {
   id: string;
@@ -22,6 +24,8 @@ interface CookCardProps {
 }
 
 const CookCard = ({ cook }: CookCardProps) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   return (
     <motion.div
       whileHover={{ scale: 1.05 }}
@@ -55,12 +59,18 @@ const CookCard = ({ cook }: CookCardProps) => {
             </CardContent>
           </div>
           <CardFooter className="p-0 mt-4">
-            <Button className="w-full bg-amber-500 text-white hover:bg-amber-600 cursor-pointer">
+            <Button
+              className="w-full bg-amber-500 text-white hover:bg-amber-600 cursor-pointer"
+              onClick={() => setIsDialogOpen(true)}
+            >
               Book
             </Button>
           </CardFooter>
         </div>
       </Card>
+      {isDialogOpen && (
+        <BookingDialog cook={cook} onClose={() => setIsDialogOpen(false)} />
+      )}
     </motion.div>
   );
 };
