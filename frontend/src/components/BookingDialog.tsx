@@ -1,12 +1,12 @@
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "./ui/dialog";
-import { Button } from "./ui/button";
 
 interface Cook {
   id: string;
@@ -24,8 +24,8 @@ interface BookingDialogProps {
 
 const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent>
+    <Dialog open={true} onOpenChange={onClose} defaultOpen={false}>
+      <DialogContent className="bg-white">
         <DialogHeader>
           <DialogTitle>Confirm Booking</DialogTitle>
           <DialogDescription>

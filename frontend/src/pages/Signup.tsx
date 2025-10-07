@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-
-const baseAPIUrl = import.meta.env.VITE_BASE_API_URL;
+import api from "@/lib/axios";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -16,7 +14,7 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   const signUpUser = async () => {
-    const res = await axios.post(`${baseAPIUrl}/user/signup`, {
+    const res = await api.post(`/user/signup`, {
       name,
       email,
       password,

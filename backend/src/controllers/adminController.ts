@@ -14,6 +14,14 @@ export const addCook = async (
     throw new Error("Please provide all the required fields!");
   }
 
+  const existingCook = await client.cook.findUnique({
+    where: { email },
+  });
+
+  if (existingCook) {
+    throw new Error("Cook with this email already exists!");
+  }
+
   const newCook = await client.cook.create({
     data: {
       name,
