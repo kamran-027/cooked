@@ -8,7 +8,7 @@ export const addCook = async (
   rate: number,
   cuisine: string,
   description: string,
-  image: string
+  image: string,
 ) => {
   if (!name || !email || !rate) {
     throw new Error("Please provide all the required fields!");
@@ -89,8 +89,12 @@ export const deleteCook = async (id: string) => {
 };
 
 export const getCooks = async () => {
-  const cooks = await client.cook.findMany();
-  return cooks;
+  try {
+    const cooks = await client.cook.findMany();
+    return cooks;
+  } catch (error) {
+    return [];
+  }
 };
 
 export const getCookById = async (id: string) => {

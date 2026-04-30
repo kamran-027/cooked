@@ -65,7 +65,7 @@ userRouter.post("/login", async (req: Request, res: Response) => {
     //Comparing the provided password with hashed password
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
+    if (!isMatch) return res.status(401).json({ error: "Invalid password!" });
 
     const token = jwt.sign(
       { userId: user.id, email: user.email },

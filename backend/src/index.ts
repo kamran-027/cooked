@@ -5,7 +5,8 @@ import userRouter from "./routes/user/userRoutes";
 import adminRouter from "../src/routes/admin/adminRoutes";
 
 dotenv.config();
-const PORT = process.env.PORT;
+
+const PORT = process.env.PORT || 3000;
 const app = express();
 
 //Adding Middleware for parsing JSON bodies

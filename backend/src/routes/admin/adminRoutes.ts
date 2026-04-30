@@ -34,7 +34,7 @@ adminRouter.post(
             : "Failed to add cook, please try again later.",
       });
     }
-  }
+  },
 );
 
 adminRouter.put(
@@ -45,12 +45,14 @@ adminRouter.put(
 
     try {
       const updatedCook = await updateCoook(id, req.body);
+
       return res.status(200).json({
         message: "Cook updated successfully!",
         cook: updatedCook,
       });
     } catch (error) {
       console.error("Error updating cook:", error);
+
       return res.status(500).json({
         message:
           error instanceof Error
@@ -58,7 +60,7 @@ adminRouter.put(
             : "Failed to update cook, please try again later.",
       });
     }
-  }
+  },
 );
 
 adminRouter.post(
@@ -82,7 +84,7 @@ adminRouter.post(
             : "Failed to delete cook, please try again later.",
       });
     }
-  }
+  },
 );
 
 adminRouter.get(
@@ -108,7 +110,7 @@ adminRouter.get(
             : "Failed to fetch cook, please try again later.",
       });
     }
-  }
+  },
 );
 
 adminRouter.get(
@@ -127,7 +129,7 @@ adminRouter.get(
             : "Failed to fetch cooks, please try again later.",
       });
     }
-  }
+  },
 );
 
 adminRouter.post(
@@ -151,7 +153,7 @@ adminRouter.post(
             : "Failed to delete user, please try again later.",
       });
     }
-  }
+  },
 );
 
 adminRouter.get(
@@ -170,7 +172,7 @@ adminRouter.get(
             : "Failed to fetch users, please try again later.",
       });
     }
-  }
+  },
 );
 
 export default adminRouter;
