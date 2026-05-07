@@ -14,6 +14,7 @@ const client = new PrismaClient();
 const JWTSecret = process.env.JWT_SECRET;
 const userRouter = express.Router();
 
+// Register a new user and return an auth token.
 userRouter.post("/signup", async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
 
@@ -48,6 +49,7 @@ userRouter.post("/signup", async (req: Request, res: Response) => {
   }
 });
 
+// Authenticate a user and issue a login token.
 userRouter.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -92,6 +94,7 @@ userRouter.post("/login", async (req: Request, res: Response) => {
   }
 });
 
+// Fetch all cooks for authenticated users.
 userRouter.get(
   "/getCooks",
   authMiddleware,
@@ -108,6 +111,7 @@ userRouter.get(
   }
 );
 
+// Fetch a specific cook by ID for authenticated users.
 userRouter.get(
   "/getCookById/:id",
   authMiddleware,

@@ -13,6 +13,7 @@ import authMiddleware from "../../middlewares/authMiddleware";
 
 const adminRouter = express.Router();
 
+// Create a new cook profile in the system.
 adminRouter.post(
   "/addCook",
   authMiddleware,
@@ -37,6 +38,7 @@ adminRouter.post(
   },
 );
 
+// Update an existing cook profile by ID.
 adminRouter.put(
   "/updateCook/:id",
   authMiddleware,
@@ -63,6 +65,7 @@ adminRouter.put(
   },
 );
 
+// Delete a cook profile by ID.
 adminRouter.post(
   "/deleteCook/:id",
   authMiddleware,
@@ -87,6 +90,7 @@ adminRouter.post(
   },
 );
 
+// Retrieve a single cook profile by ID.
 adminRouter.get(
   "/getCook/:id",
   authMiddleware,
@@ -113,6 +117,7 @@ adminRouter.get(
   },
 );
 
+// Retrieve all cook profiles.
 adminRouter.get(
   "/getCooks",
   authMiddleware,
@@ -132,6 +137,7 @@ adminRouter.get(
   },
 );
 
+// Delete a user account by ID.
 adminRouter.post(
   "/deleteUser/:id",
   authMiddleware,
@@ -156,6 +162,7 @@ adminRouter.post(
   },
 );
 
+// Retrieve all registered users.
 adminRouter.get(
   "/getUsers",
   authMiddleware,
