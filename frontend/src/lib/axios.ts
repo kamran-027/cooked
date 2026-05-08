@@ -14,7 +14,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 api.interceptors.response.use(
@@ -22,10 +22,11 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       sessionStorage.removeItem("token");
+      window.dispatchEvent(new Event("auth:logout"));
       window.location.href = "/signin";
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

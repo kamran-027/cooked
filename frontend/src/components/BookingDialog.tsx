@@ -7,6 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import api from "@/lib/axios";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface Cook {
   id: string;
@@ -23,6 +26,27 @@ interface BookingDialogProps {
 }
 
 const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
+  const queryClient = useQueryClient();
+
+  const { mutate: bookCook, isPending } = useMutation({
+    mutationKey: ["create-booking", cook.id],
+    mutationFn: async () => {
+      const response = await api.post("/user/bookings", { cookId: cook.id });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message || "Booking created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      onClose();
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to create booking, please try again.",
+      );
+    },
+  });
+
   return (
     <Dialog open={true} onOpenChange={onClose} defaultOpen={false}>
       <DialogContent className="bg-white">
@@ -41,10 +65,12 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
           </p>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={isPending}>
             Cancel
           </Button>
-          <Button>Confirm</Button>
+          <Button onClick={() => bookCook()} disabled={isPending}>
+            {isPending ? "Booking..." : "Confirm"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
