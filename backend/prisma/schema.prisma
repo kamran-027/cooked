@@ -14,14 +14,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id        String    @id @default(uuid())
   name      String?
   email     String    @unique
   password  String
+  role      Role      @default(USER)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  Booking   Booking[]
+  bookings  Booking[]
 }
 
 model Cook {
@@ -34,15 +40,19 @@ model Cook {
   rate        Int
   createdAt   DateTime @default(now())
   updatedAt   DateTime
-  Booking     Booking?
+  bookings    Booking[]
 }
 
 model Booking {
-  id        Int
-  userId    String   @unique
-  cookId    String   @unique
+  id        String   @id @default(uuid())
+  userId    String
+  cookId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  User      User     @relation(fields: [userId], references: [id])
-  Cook      Cook     @relation(fields: [cookId], references: [id])
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cook Cook @relation(fields: [cookId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([cookId])
 }

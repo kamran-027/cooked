@@ -2,6 +2,8 @@ import express from "express";
 import { Request, Response } from "express";
 import {
   addCook,
+  addAdmin,
+  createAdmin,
   updateCoook,
   deleteCook,
   getCookById,
@@ -12,12 +14,27 @@ import {
 import authMiddleware from "../../middlewares/authMiddleware";
 
 const adminRouter = express.Router();
+type AuthPayload = {
+  userId: string;
+  email: string;
+  role?: "USER" | "ADMIN";
+};
+
+const requireAdmin = (req: Request, res: Response): boolean => {
+  const authUser = (req as Request & { user?: AuthPayload }).user;
+  if (!authUser || authUser.role !== "ADMIN") {
+    res.status(403).json({ message: "Forbidden: admin access required" });
+    return false;
+  }
+  return true;
+};
 
 // Create a new cook profile in the system.
 adminRouter.post(
   "/addCook",
   authMiddleware,
   async (req: Request, res: Response) => {
+    if (!requireAdmin(req, res)) return;
     try {
       const { name, email, rate, cuisine, description, image } = req.body;
 
@@ -43,6 +60,7 @@ adminRouter.put(
   "/updateCook/:id",
   authMiddleware,
   async (req: Request, res: Response) => {
+    if (!requireAdmin(req, res)) return;
     const { id } = req.params;
 
     try {
@@ -70,6 +88,7 @@ adminRouter.post(
   "/deleteCook/:id",
   authMiddleware,
   async (req: Request, res: Response) => {
+    if (!requireAdmin(req, res)) return;
     const { id } = req.params;
 
     try {
@@ -95,6 +114,7 @@ adminRouter.get(
   "/getCook/:id",
   authMiddleware,
   async (req: Request, res: Response) => {
+    if (!requireAdmin(req, res)) return;
     const { id } = req.params;
 
     try {
@@ -122,6 +142,7 @@ adminRouter.get(
   "/getCooks",
   authMiddleware,
   async (req: Request, res: Response) => {
+    if (!requireAdmin(req, res)) return;
     try {
       const cooks = await getCooks();
       return res.status(200).json(cooks);
@@ -142,6 +163,7 @@ adminRouter.post(
   "/deleteUser/:id",
   authMiddleware,
   async (req: Request, res: Response) => {
+    if (!requireAdmin(req, res)) return;
     const { id } = req.params;
 
     try {
@@ -167,6 +189,7 @@ adminRouter.get(
   "/getUsers",
   authMiddleware,
   async (req: Request, res: Response) => {
+    if (!requireAdmin(req, res)) return;
     try {
       const users = await getUsers();
       return res.status(200).json(users);
@@ -181,5 +204,54 @@ adminRouter.get(
     }
   },
 );
+
+// Promote an existing user account to admin by user ID.
+adminRouter.post(
+  "/promoteAdmin/:id",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    if (!requireAdmin(req, res)) return;
+    const { id } = req.params;
+
+    try {
+      const updatedUser = await addAdmin(id);
+      return res.status(200).json({
+        message: "Admin added successfully!",
+        userId: updatedUser.id,
+        role: updatedUser.role,
+      });
+    } catch (error) {
+      console.error("Error adding admin:", error);
+      return res.status(500).json({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to add admin, please try again later.",
+      });
+    }
+  },
+);
+
+// Public route to create an admin account directly.
+adminRouter.post("/addAdmin", async (req: Request, res: Response) => {
+  try {
+    const { name, email, password } = req.body;
+    const newAdmin = await createAdmin(name, email, password);
+
+    return res.status(201).json({
+      message: "Admin created successfully!",
+      userId: newAdmin.id,
+      role: newAdmin.role,
+    });
+  } catch (error) {
+    console.error("Error creating admin:", error);
+    return res.status(500).json({
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to create admin, please try again later.",
+    });
+  }
+});
 
 export default adminRouter;
