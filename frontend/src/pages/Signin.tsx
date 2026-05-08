@@ -22,7 +22,7 @@ const SignIn = () => {
     return res.data;
   };
 
-  const { mutate: handleUserSubmit } = useMutation({
+  const { mutate: handleUserSubmit, isPending } = useMutation({
     mutationKey: ["signin"],
     mutationFn: signInUser,
     onSuccess(response) {
@@ -32,8 +32,11 @@ const SignIn = () => {
       toast.success("Login Successful!");
       navigate("/dashboard");
     },
-    onError() {
-      toast.error("Error Signing In! Please check details again");
+    onError(error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Error Signing In! Please check details again",
+      );
     },
   });
 
@@ -75,8 +78,9 @@ const SignIn = () => {
             type="submit"
             variant={"outline"}
             className="w-full  bg-yellow-300 hover:bg-yellow-400 cursor-pointer mt-2 focus-visible:ring-2 focus-visible:ring-yellow-300"
+            disabled={isPending}
           >
-            Sign In
+            {isPending ? "Signing In..." : "Sign In"}
           </Button>
         </form>
         <p className="text-center text-sm text-gray-600">

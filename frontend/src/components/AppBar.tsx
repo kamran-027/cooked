@@ -12,11 +12,12 @@ import AppLogo from "../assets/Cooked_Logo.png";
 import { useNavigate } from "react-router-dom";
 
 const AppBar = () => {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     sessionStorage.removeItem("token");
+    setUser(null);
     navigate("/signin");
   };
 
@@ -35,18 +36,29 @@ const AppBar = () => {
               <Avatar className="cursor-pointer w-10 h-10 bg-gray-600 text-white border-none focus:outline-none focus:ring-0">
                 <AvatarImage />
                 <AvatarFallback>
-                  {user ? user.name.charAt(0).toUpperCase() : "U"}
+                  {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
                 </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-white border-none rounded-lg shadow-lg p-2 min-w-[180px]">
               <DropdownMenuLabel className="font-semibold">
-                {user ? user.name : "Account Details"}
+                {user?.name || "Account Details"}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="rounded-md transition-colors cursor-pointer hover:bg-yellow-300 hover:text-white">
+              <DropdownMenuItem
+                className="rounded-md transition-colors cursor-pointer hover:bg-yellow-300 hover:text-white"
+                onClick={() => navigate("/dashboard/bookings")}
+              >
                 My Bookings
               </DropdownMenuItem>
+              {user?.role === "ADMIN" && (
+                <DropdownMenuItem
+                  className="rounded-md transition-colors cursor-pointer hover:bg-amber-400 hover:text-white"
+                  onClick={() => navigate("/admin")}
+                >
+                  Admin Panel
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 className="rounded-md transition-colors cursor-pointer hover:bg-red-300 hover:text-white"
                 onClick={handleLogout}

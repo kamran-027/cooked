@@ -1,18 +1,16 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
-const PORT = process.env.PORT;
-const app = (0, express_1.default)();
-app.get("/", (req, res) => {
-    return res.json({
-        message: "Server is up & running!!",
-    });
-});
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import userRouter from "./routes/user/userRoutes";
+import adminRouter from "../src/routes/admin/adminRoutes";
+dotenv.config();
+const PORT = process.env.PORT || 3000;
+const app = express();
+//Adding Middleware for parsing JSON bodies
+app.use(express.json());
+app.use(cors());
+app.use("/user", userRouter);
+app.use("/admin", adminRouter);
 app.listen(PORT, () => {
-    console.log("Listening on port 3000");
+    console.log(`Listening on port ${PORT}`);
 });

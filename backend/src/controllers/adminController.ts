@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const client = new PrismaClient();
 
@@ -93,7 +94,10 @@ export const getCooks = async () => {
     const cooks = await client.cook.findMany();
     return cooks;
   } catch (error) {
-    return [];
+    return {
+      status: 500,
+      message: "Failed to fetch cooks, please try again later.",
+    };
   }
 };
 
@@ -136,4 +140,60 @@ export const deleteUser = async (id: string) => {
 export const getUsers = async () => {
   const users = await client.user.findMany();
   return users;
+};
+
+export const addAdmin = async (id: string) => {
+  if (!id) {
+    throw new Error("Please provide a valid user ID!");
+  }
+
+  const userExists = await client.user.findUnique({
+    where: { id },
+  });
+
+  if (!userExists) {
+    throw new Error("User not found!");
+  }
+
+  if (userExists.role === "ADMIN") {
+    throw new Error("User is already an admin!");
+  }
+
+  const updatedUser = await client.user.update({
+    where: { id },
+    data: { role: "ADMIN", updatedAt: new Date() },
+  });
+
+  return updatedUser;
+};
+
+export const createAdmin = async (
+  name: string,
+  email: string,
+  password: string,
+) => {
+  if (!name || !email || !password) {
+    throw new Error("Please provide name, email, and password!");
+  }
+
+  const emailExists = await client.user.findUnique({
+    where: { email },
+  });
+
+  if (emailExists) {
+    throw new Error("Email already exists!");
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const adminUser = await client.user.create({
+    data: {
+      name,
+      email,
+      password: hashedPassword,
+      role: "ADMIN",
+    },
+  });
+
+  return adminUser;
 };
