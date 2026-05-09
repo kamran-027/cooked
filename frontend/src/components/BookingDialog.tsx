@@ -49,7 +49,7 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
 
   return (
     <Dialog open={true} onOpenChange={onClose} defaultOpen={false}>
-      <DialogContent className="bg-white">
+      <DialogContent className="bg-card">
         <DialogHeader>
           <DialogTitle>Confirm Booking</DialogTitle>
           <DialogDescription>
@@ -65,10 +65,10 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
           </p>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isPending}>
+          <Button variant="outline" className="cursor-pointer hover:bg-secondary" onClick={onClose} disabled={isPending}>
             Cancel
           </Button>
-          <Button onClick={() => bookCook()} disabled={isPending}>
+          <Button className="cursor-pointer hover:bg-primary/90" onClick={() => bookCook()} disabled={isPending}>
             {isPending ? "Booking..." : "Confirm"}
           </Button>
         </DialogFooter>

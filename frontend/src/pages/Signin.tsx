@@ -7,6 +7,7 @@ import { Label } from "../components/ui/label";
 import api from "../lib/axios";
 import { useMutation } from "@tanstack/react-query";
 import { useUser } from "../contexts/UserContext";
+import { BackgroundBeams } from "@/components/ui/background-beams";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -28,8 +29,7 @@ const SignIn = () => {
     onSuccess(response) {
       sessionStorage.setItem("token", response.token);
       setUser(response.user);
-
-      toast.success("Login Successful!");
+      toast.success("Welcome back.");
       navigate("/dashboard");
     },
     onError(error: any) {
@@ -46,10 +46,13 @@ const SignIn = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center">Let's Cook</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+      <BackgroundBeams className="opacity-40" />
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-border/70 bg-card p-8 shadow-xl backdrop-blur-sm">
+        <h2 className="text-3xl font-semibold tracking-tight text-foreground">Sign In</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Get back to your kitchen dashboard.</p>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -59,7 +62,6 @@ const SignIn = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="focus-visible:ring-2 focus-visible:ring-yellow-300"
             />
           </div>
           <div className="space-y-2">
@@ -71,24 +73,16 @@ const SignIn = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="focus-visible:ring-2 focus-visible:ring-yellow-300"
             />
           </div>
-          <Button
-            type="submit"
-            variant={"outline"}
-            className="w-full  bg-yellow-300 hover:bg-yellow-400 cursor-pointer mt-2 focus-visible:ring-2 focus-visible:ring-yellow-300"
-            disabled={isPending}
-          >
+          <Button type="submit" className="w-full cursor-pointer" disabled={isPending}>
             {isPending ? "Signing In..." : "Sign In"}
           </Button>
         </form>
-        <p className="text-center text-sm text-gray-600">
-          Don't have an account?{" "}
-          <Link
-            to="/signup"
-            className="font-medium text-blue-600 hover:underline"
-          >
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link to="/signup" className="font-medium text-primary hover:underline">
             Sign Up
           </Link>
         </p>
