@@ -27,50 +27,31 @@ const CookCard = ({ cook }: CookCardProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      transition={{ type: "spring", stiffness: 100 }}
-    >
-      <Card className="overflow-hidden rounded-lg shadow-lg max-w-sm mx-auto h-full flex flex-col">
-        <div className="flex-shrink-0">
-          <img
-            src={cook.image}
-            alt={cook.name}
-            className="object-cover h-48 w-full"
-          />
+    <motion.div whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 220, damping: 18 }}>
+      <Card className="mx-auto flex h-full max-w-sm flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-md transition-all duration-300 hover:shadow-xl">
+        <div className="relative overflow-hidden">
+          <img src={cook.image} alt={cook.name} className="h-48 w-full object-cover transition-transform duration-500 hover:scale-105" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-black/5 to-transparent" />
         </div>
-        <div className="p-4 flex flex-col flex-grow justify-between">
+        <div className="flex flex-grow flex-col justify-between p-5">
           <div>
-            <CardHeader className="p-0 text-center">
-              <CardTitle className="text-xl font-bold text-gray-800">
-                {cook.name}
-              </CardTitle>
+            <CardHeader className="p-0 text-left">
+              <CardTitle className="text-lg font-semibold tracking-tight sm:text-xl">{cook.name}</CardTitle>
             </CardHeader>
-            <CardContent className="p-0 mt-2 text-center">
-              <p className="text-md font-semibold text-amber-600">
-                {cook.cuisine}
-              </p>
-              <p className="text-gray-600 text-sm mt-2 h-16 overflow-hidden">
-                {cook.description}
-              </p>
-              <p className="text-lg font-bold text-gray-800 ">
-                ${cook.rate}/hr
-              </p>
+            <CardContent className="mt-2 p-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary sm:text-sm">{cook.cuisine}</p>
+              <p className="mt-2 h-16 overflow-hidden text-sm text-muted-foreground">{cook.description}</p>
+              <p className="mt-3 text-lg font-bold text-foreground">${cook.rate}/hr</p>
             </CardContent>
           </div>
-          <CardFooter className="p-0 mt-4">
-            <Button
-              className="w-full bg-amber-500 text-white hover:bg-amber-600 cursor-pointer"
-              onClick={() => setIsDialogOpen(true)}
-            >
-              Book
+          <CardFooter className="mt-4 p-0">
+            <Button className="w-full cursor-pointer" onClick={() => setIsDialogOpen(true)}>
+              Book Now
             </Button>
           </CardFooter>
         </div>
       </Card>
-      {isDialogOpen && (
-        <BookingDialog cook={cook} onClose={() => setIsDialogOpen(false)} />
-      )}
+      {isDialogOpen && <BookingDialog cook={cook} onClose={() => setIsDialogOpen(false)} />}
     </motion.div>
   );
 };

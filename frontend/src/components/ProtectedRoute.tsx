@@ -8,8 +8,8 @@ const ProtectedRoute = ({ children }: { children: ReactElement }) => {
 
   if (isHydrating) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <p className="text-gray-600">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     );
   }

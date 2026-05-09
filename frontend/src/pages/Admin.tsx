@@ -8,6 +8,7 @@ import api from "@/lib/axios";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { CanvasRevealEffect } from "@/components/ui/canvas-reveal-effect";
 
 interface User {
   id: string;
@@ -161,33 +162,51 @@ const Admin = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <AppBar />
-      <main className="flex-1 p-8 bg-gray-50 space-y-8">
-        <div className="container mx-auto space-y-8">
-          <h2 className="text-3xl font-bold text-gray-800">Admin Panel</h2>
+      <main className="flex-1 bg-transparent px-4 py-6 sm:px-6 sm:py-8 md:px-8 space-y-6">
+        <div className="container mx-auto space-y-6">
+          <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card p-6 shadow-md">
+            <div className="pointer-events-none absolute inset-0 opacity-60">
+              <CanvasRevealEffect
+                animationSpeed={3.8}
+                containerClassName="bg-transparent"
+                colors={[
+                  [234, 179, 8],
+                  [249, 115, 22],
+                ]}
+                dotSize={2}
+              />
+            </div>
+            <div className="relative z-10">
+              <h2 className="text-3xl font-bold text-foreground">Admin Control Center</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Manage chefs, users, and access controls with confidence.
+              </p>
+            </div>
+          </div>
 
-          <section className="bg-white rounded-lg shadow p-6 space-y-4">
+          <section className="bg-card rounded-2xl border border-border/80 p-6 shadow-sm space-y-4">
             <h3 className="text-xl font-semibold">Create Admin</h3>
             <div className="grid md:grid-cols-3 gap-3">
               <Input placeholder="Name" value={adminForm.name} onChange={(e) => setAdminForm((s) => ({ ...s, name: e.target.value }))} />
               <Input placeholder="Email" value={adminForm.email} onChange={(e) => setAdminForm((s) => ({ ...s, email: e.target.value }))} />
               <Input placeholder="Password" type="password" value={adminForm.password} onChange={(e) => setAdminForm((s) => ({ ...s, password: e.target.value }))} />
             </div>
-            <Button onClick={() => createAdminMutation.mutate()} disabled={createAdminMutation.isPending}>Create Admin</Button>
+            <Button className="cursor-pointer" onClick={() => createAdminMutation.mutate()} disabled={createAdminMutation.isPending}>Create Admin</Button>
           </section>
 
-          <section className="bg-white rounded-lg shadow p-6 space-y-4">
+          <section className="bg-card rounded-2xl border border-border/80 p-6 shadow-sm space-y-4">
             <h3 className="text-xl font-semibold">Promote Users to Admin</h3>
             <div className="space-y-3">
               {nonAdminUsers.map((u) => (
-                <div key={u.id} className="flex items-center justify-between border rounded p-3">
+                <div key={u.id} className="flex flex-col gap-3 rounded-xl border border-border/80 p-3 sm:flex-row sm:items-center sm:justify-between">
                   <p>{u.name || "Unnamed"} ({u.email})</p>
-                  <Button onClick={() => promoteUserMutation.mutate(u.id)} disabled={promoteUserMutation.isPending}>Promote</Button>
+                  <Button className="cursor-pointer" onClick={() => promoteUserMutation.mutate(u.id)} disabled={promoteUserMutation.isPending}>Promote</Button>
                 </div>
               ))}
             </div>
           </section>
 
-          <section className="bg-white rounded-lg shadow p-6 space-y-4">
+          <section className="bg-card rounded-2xl border border-border/80 p-6 shadow-sm space-y-4">
             <h3 className="text-xl font-semibold">Manage Cooks</h3>
             <div className="grid md:grid-cols-3 gap-3">
               <Input placeholder="Name" value={cookForm.name} onChange={(e) => setCookForm((s) => ({ ...s, name: e.target.value }))} />
@@ -198,11 +217,11 @@ const Admin = () => {
               <Input placeholder="Image URL" value={cookForm.image} onChange={(e) => setCookForm((s) => ({ ...s, image: e.target.value }))} />
             </div>
             <div className="flex gap-3">
-              <Button onClick={() => (editingCookId ? updateCookMutation.mutate() : addCookMutation.mutate())} disabled={addCookMutation.isPending || updateCookMutation.isPending}>
+              <Button className="cursor-pointer" onClick={() => (editingCookId ? updateCookMutation.mutate() : addCookMutation.mutate())} disabled={addCookMutation.isPending || updateCookMutation.isPending}>
                 {editingCookId ? "Update Cook" : "Add Cook"}
               </Button>
               {editingCookId && (
-                <Button variant="outline" onClick={() => {
+                <Button className="cursor-pointer" variant="outline" onClick={() => {
                   setEditingCookId(null);
                   setCookForm({ name: "", email: "", rate: "", cuisine: "", description: "", image: "" });
                 }}>
@@ -213,10 +232,10 @@ const Admin = () => {
 
             <div className="space-y-3">
               {cooks?.map((cook) => (
-                <div key={cook.id} className="flex items-center justify-between border rounded p-3">
+                <div key={cook.id} className="flex flex-col gap-3 rounded-xl border border-border/80 p-3 sm:flex-row sm:items-center sm:justify-between">
                   <p>{cook.name} ({cook.email})</p>
                   <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => {
+                    <Button className="cursor-pointer" variant="outline" onClick={() => {
                       setEditingCookId(cook.id);
                       setCookForm({
                         name: cook.name,
@@ -229,7 +248,7 @@ const Admin = () => {
                     }}>
                       Edit
                     </Button>
-                    <Button variant="destructive" onClick={() => deleteCookMutation.mutate(cook.id)}>
+                    <Button className="cursor-pointer" variant="destructive" onClick={() => deleteCookMutation.mutate(cook.id)}>
                       Delete
                     </Button>
                   </div>
@@ -238,13 +257,13 @@ const Admin = () => {
             </div>
           </section>
 
-          <section className="bg-white rounded-lg shadow p-6 space-y-4">
+          <section className="bg-card rounded-2xl border border-border/80 p-6 shadow-sm space-y-4">
             <h3 className="text-xl font-semibold">Manage Users</h3>
             <div className="space-y-3">
               {users?.map((u) => (
-                <div key={u.id} className="flex items-center justify-between border rounded p-3">
+                <div key={u.id} className="flex flex-col gap-3 rounded-xl border border-border/80 p-3 sm:flex-row sm:items-center sm:justify-between">
                   <p>{u.name || "Unnamed"} ({u.email}) - {u.role}</p>
-                  <Button variant="destructive" onClick={() => deleteUserMutation.mutate(u.id)}>
+                  <Button className="cursor-pointer" variant="destructive" onClick={() => deleteUserMutation.mutate(u.id)}>
                     Delete User
                   </Button>
                 </div>

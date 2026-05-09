@@ -6,6 +6,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import api from "@/lib/axios";
+import { BackgroundBeams } from "@/components/ui/background-beams";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -29,8 +30,8 @@ const SignUp = () => {
       toast.success("User Signed Up Successfully!");
       navigate("/signin");
     },
-    onError() {
-      toast.error("Error Signing Up!");
+    onError(error: any) {
+      toast.error(error?.response?.data?.message || "Error Signing Up!");
     },
   });
 
@@ -40,64 +41,33 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center">
-          Are You Ready to be Cooked ?
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+      <BackgroundBeams className="opacity-40" />
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-border/70 bg-card p-8 shadow-xl backdrop-blur-sm">
+        <h2 className="text-3xl font-semibold tracking-tight text-foreground">Create Account</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Join Cooked and start booking in minutes.</p>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              type="text"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="focus-visible:ring-2 focus-visible:ring-yellow-300"
-            />
+            <Input id="name" type="text" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="sam.cook@cooked.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="focus-visible:ring-2 focus-visible:ring-yellow-300"
-            />
+            <Input id="email" type="email" placeholder="sam.cook@cooked.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="********"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="focus-visible:ring-2 focus-visible:ring-yellow-300"
-            />
+            <Input id="password" type="password" placeholder="********" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
-          <Button
-            type="submit"
-            className="w-full bg-yellow-300 hover:bg-yellow-400 cursor-pointer mt-2 focus-visible:ring-2 focus-visible:ring-yellow-300"
-            variant={"outline"}
-            disabled={isPending}
-          >
-            Sign Up
-            {isPending && <span className="ml-2 animate-spin">🔄</span>}
+          <Button type="submit" className="w-full cursor-pointer" disabled={isPending}>
+            {isPending ? "Creating Account..." : "Sign Up"}
           </Button>
         </form>
-        <p className="text-center text-sm text-gray-600">
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link
-            to="/signin"
-            className="font-medium text-blue-600 hover:underline"
-          >
+          <Link to="/signin" className="font-medium text-primary hover:underline">
             Sign In
           </Link>
         </p>

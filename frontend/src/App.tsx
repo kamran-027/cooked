@@ -10,6 +10,7 @@ import { UserProvider } from "./contexts/UserContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Bookings from "./pages/Bookings";
 import Admin from "./pages/Admin";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 function App() {
   const queryClient = new QueryClient({
@@ -22,8 +23,8 @@ function App() {
   });
 
   return (
-    <>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
         <UserProvider>
           <Routes>
             <Route path="/" element={<Navigate to="/signin" replace />} />
@@ -57,13 +58,11 @@ function App() {
         </UserProvider>
         <Toaster
           position="top-right"
-          toastOptions={{
-            duration: 3000,
-          }}
+          toastOptions={{ duration: 3000 }}
           richColors={true}
         />
-      </QueryClientProvider>
-    </>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

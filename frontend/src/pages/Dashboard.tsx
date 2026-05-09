@@ -1,14 +1,17 @@
 import AppBar from "@/components/AppBar";
 import Footer from "@/components/Footer";
 import Main from "@/components/Main";
+import ShellLayout from "@/components/ShellLayout";
 
 const Dashboard = () => {
   return (
-    <div className="flex flex-col h-screen">
-      <AppBar />
-      <Main />
-      <Footer />
-    </div>
+    <ShellLayout>
+      <div className="flex min-h-screen flex-col">
+        <AppBar />
+        <Main />
+        <Footer />
+      </div>
+    </ShellLayout>
   );
 };
 

@@ -48,27 +48,27 @@ const Bookings = () => {
   });
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <AppBar />
-      <main className="flex-1 p-8 bg-gray-50">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">My Bookings</h2>
+      <main className="flex-1 bg-transparent px-4 py-6 sm:px-6 sm:py-8 md:px-8">
+        <div className="container mx-auto px-0">
+          <h2 className="text-3xl font-bold text-foreground mb-8">My Bookings</h2>
 
-          {isLoading && <p className="text-gray-600">Loading bookings...</p>}
+          {isLoading && <p className="text-muted-foreground">Loading bookings...</p>}
           {isError && (
             <Error message="Failed to fetch bookings. Please try again later." />
           )}
           {!isLoading && !isError && data?.length === 0 && (
-            <p className="text-gray-600">No bookings found yet.</p>
+            <p className="text-muted-foreground">No bookings found yet.</p>
           )}
 
           <div className="space-y-4">
             {data?.map((booking) => (
               <div
                 key={booking.id}
-                className="bg-white rounded-lg shadow p-4 flex items-center justify-between"
+                className="flex flex-col gap-4 rounded-2xl border border-border/80 bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <img
                     src={booking.cook.image}
                     alt={booking.cook.name}
@@ -76,8 +76,8 @@ const Bookings = () => {
                   />
                   <div>
                     <h3 className="font-semibold text-lg">{booking.cook.name}</h3>
-                    <p className="text-sm text-gray-600">{booking.cook.cuisine}</p>
-                    <p className="text-sm text-gray-600">${booking.cook.rate}/hr</p>
+                    <p className="text-sm text-muted-foreground">{booking.cook.cuisine}</p>
+                    <p className="text-sm text-muted-foreground">${booking.cook.rate}/hr</p>
                   </div>
                 </div>
                 <Button
