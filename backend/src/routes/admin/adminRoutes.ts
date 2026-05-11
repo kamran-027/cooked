@@ -10,8 +10,8 @@ import {
   getCooks,
   deleteUser,
   getUsers,
-} from "../../controllers/adminController";
-import authMiddleware from "../../middlewares/authMiddleware";
+} from "../../controllers/adminController.js";
+import authMiddleware from "../../middlewares/authMiddleware.js";
 
 const adminRouter = express.Router();
 type AuthPayload = {

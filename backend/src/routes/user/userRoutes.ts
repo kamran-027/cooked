@@ -1,12 +1,12 @@
 import express from "express";
 import { Request, Response } from "express";
-import { addUser } from "../../controllers/userController";
+import { addUser } from "../../controllers/userController.js";
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { getCookById, getCooks } from "../../controllers/adminController";
-import authMiddleware from "../../middlewares/authMiddleware";
+import { getCookById, getCooks } from "../../controllers/adminController.js";
+import authMiddleware from "../../middlewares/authMiddleware.js";
 import { z } from "zod";
 
 dotenv.config();
