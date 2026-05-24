@@ -10,8 +10,8 @@ const cooks = [
     description:
       "Specializes in fresh Mediterranean meal-prep menus with balanced flavors.",
     image:
-      "https://images.unsplash.com/photo-1607631568010-a87245c0daf8?auto=format&fit=crop&w=1200&q=80",
-    rate: 42,
+      "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 150,
   },
   {
     name: "Noah Patel",
@@ -20,8 +20,8 @@ const cooks = [
     description:
       "Home-style North Indian and Indo-fusion dishes with custom spice levels.",
     image:
-      "https://images.unsplash.com/photo-1556911220-bda9f7f7597e?auto=format&fit=crop&w=1200&q=80",
-    rate: 38,
+      "https://images.pexels.com/photos/2097090/pexels-photo-2097090.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 100,
   },
   {
     name: "Sofia Martinez",
@@ -30,8 +30,8 @@ const cooks = [
     description:
       "Known for flavorful tacos, enchiladas, and modern Mexican comfort food.",
     image:
-      "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=1200&q=80",
-    rate: 40,
+      "https://images.pexels.com/photos/461198/pexels-photo-461198.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 200,
   },
   {
     name: "Ethan Cole",
@@ -40,8 +40,8 @@ const cooks = [
     description:
       "Focuses on elevated American classics and high-protein family meals.",
     image:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
-    rate: 45,
+      "https://images.pexels.com/photos/70497/pexels-photo-70497.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 250,
   },
   {
     name: "Maya Kim",
@@ -50,8 +50,8 @@ const cooks = [
     description:
       "Korean home cooking expert, from bibimbap to slow-cooked stews.",
     image:
-      "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=80",
-    rate: 44,
+      "https://images.pexels.com/photos/691114/pexels-photo-691114.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 150,
   },
   {
     name: "Leo Fischer",
@@ -60,8 +60,8 @@ const cooks = [
     description:
       "Traditional German comfort dishes with a modern plating approach.",
     image:
-      "https://images.unsplash.com/photo-1481931098730-318b6f776db0?auto=format&fit=crop&w=1200&q=80",
-    rate: 37,
+      "https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 100,
   },
   {
     name: "Zara Ahmed",
@@ -70,8 +70,8 @@ const cooks = [
     description:
       "Specializes in mezze spreads, grilled mains, and family-style feasts.",
     image:
-      "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1200&q=80",
-    rate: 43,
+      "https://images.pexels.com/photos/1640772/pexels-photo-1640772.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 200,
   },
   {
     name: "Oliver Grant",
@@ -80,8 +80,8 @@ const cooks = [
     description:
       "Fresh pasta, rustic sauces, and Italian dinner experiences at home.",
     image:
-      "https://images.unsplash.com/photo-1521389508051-d7ffb5dc8f70?auto=format&fit=crop&w=1200&q=80",
-    rate: 46,
+      "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 300,
   },
   {
     name: "Ava Johnson",
@@ -90,8 +90,8 @@ const cooks = [
     description:
       "Plant-forward chef creating nutrient-dense and flavor-packed menus.",
     image:
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1200&q=80",
-    rate: 39,
+      "https://images.pexels.com/photos/376533/pexels-photo-376533.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 150,
   },
   {
     name: "Rafael Silva",
@@ -100,8 +100,8 @@ const cooks = [
     description:
       "Brazilian staples and grilled specialties with bold, bright profiles.",
     image:
-      "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80",
-    rate: 41,
+      "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 200,
   },
   {
     name: "Hana Suzuki",
@@ -110,8 +110,8 @@ const cooks = [
     description:
       "Balanced Japanese meals with precision prep and seasonal ingredients.",
     image:
-      "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?auto=format&fit=crop&w=1200&q=80",
-    rate: 48,
+      "https://images.pexels.com/photos/262959/pexels-photo-262959.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 250,
   },
   {
     name: "Daniel Moore",
@@ -120,8 +120,8 @@ const cooks = [
     description:
       "Low-and-slow barbecue specialist with house-made sauces and rubs.",
     image:
-      "https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=1200&q=80",
-    rate: 47,
+      "https://images.pexels.com/photos/1234535/pexels-photo-1234535.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 150,
   },
   {
     name: "Priya Nair",
@@ -130,18 +130,17 @@ const cooks = [
     description:
       "Authentic South Indian menus including dosas, curries, and rice bowls.",
     image:
-      "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=1200&q=80",
-    rate: 36,
+      "https://images.pexels.com/photos/2098085/pexels-photo-2098085.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 100,
   },
   {
     name: "Lucas Dubois",
     email: "lucas.dubois@cooked.com",
     cuisine: "French",
-    description:
-      "Classical French techniques adapted for cozy in-home dining.",
+    description: "Classical French techniques adapted for cozy in-home dining.",
     image:
-      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80",
-    rate: 50,
+      "https://images.pexels.com/photos/1603901/pexels-photo-1603901.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 300,
   },
   {
     name: "Nina Petrova",
@@ -150,8 +149,8 @@ const cooks = [
     description:
       "Hearty Eastern European soups, dumplings, and baked specialties.",
     image:
-      "https://images.unsplash.com/photo-1603079847843-75f4f98f5eb1?auto=format&fit=crop&w=1200&q=80",
-    rate: 35,
+      "https://images.pexels.com/photos/2116094/pexels-photo-2116094.jpeg?auto=compress&cs=tinysrgb&w=1200",
+    rate: 100,
   },
 ];
 
