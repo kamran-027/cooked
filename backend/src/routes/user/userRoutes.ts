@@ -198,7 +198,7 @@ userRouter.get("/me", authMiddleware, async (req: Request, res: Response) => {
 
 
 
-// Fetch all unbooked availability slots for a specific cook
+// Fetch all availability slots for a specific cook
 userRouter.get(
   "/cooks/:id/availability",
   authMiddleware,
@@ -208,7 +208,6 @@ userRouter.get(
       const slots = await client.cookAvailability.findMany({
         where: {
           cookId: id,
-          isBooked: false,
         },
         orderBy: { date: "asc" },
       });

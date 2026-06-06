@@ -27,6 +27,15 @@ interface Cook {
   image: string;
 }
 
+interface CookAvailability {
+  id: string;
+  cookId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  isBooked: boolean;
+}
+
 const Admin = () => {
   const { user } = useUser();
   const queryClient = useQueryClient();
@@ -42,6 +51,10 @@ const Admin = () => {
   });
   const [editingCookId, setEditingCookId] = useState<string | null>(null);
 
+  // Availability state
+  const [selectedCookIdForSchedule, setSelectedCookIdForSchedule] = useState<string>("");
+  const [scheduleForm, setScheduleForm] = useState({ date: "", startTime: "", endTime: "" });
+
   const { data: users } = useQuery<User[]>({
     queryKey: ["admin-users"],
     queryFn: async () => (await api.get("/admin/getUsers")).data,
@@ -52,6 +65,13 @@ const Admin = () => {
     queryKey: ["admin-cooks"],
     queryFn: async () => (await api.get("/admin/getCooks")).data,
     enabled: user?.role === "ADMIN",
+  });
+
+  // Fetch slots for selected cook
+  const { data: adminSlots } = useQuery<CookAvailability[]>({
+    queryKey: ["admin-slots", selectedCookIdForSchedule],
+    queryFn: async () => (await api.get(`/admin/cooks/${selectedCookIdForSchedule}/availability`)).data,
+    enabled: !!selectedCookIdForSchedule && user?.role === "ADMIN",
   });
 
   const nonAdminUsers = useMemo(
@@ -146,12 +166,48 @@ const Admin = () => {
 
   const deleteCookMutation = useMutation({
     mutationFn: async (id: string) => (await api.post(`/admin/deleteCook/${id}`)).data,
-    onSuccess: (data) => {
+    onSuccess: (data, id) => {
       toast.success(data?.message || "Cook deleted successfully!");
       queryClient.invalidateQueries({ queryKey: ["admin-cooks"] });
+      if (selectedCookIdForSchedule === id) {
+        setSelectedCookIdForSchedule("");
+      }
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Failed to delete cook.");
+    },
+  });
+
+  // Add availability slot mutation
+  const addAvailabilityMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedCookIdForSchedule) throw new Error("Please select a cook");
+      const response = await api.post(`/admin/cooks/${selectedCookIdForSchedule}/availability`, {
+        date: scheduleForm.date,
+        startTime: scheduleForm.startTime,
+        endTime: scheduleForm.endTime,
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message || "Slot added successfully!");
+      setScheduleForm({ date: "", startTime: "", endTime: "" });
+      queryClient.invalidateQueries({ queryKey: ["admin-slots", selectedCookIdForSchedule] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Failed to add availability slot.");
+    },
+  });
+
+  // Delete slot mutation
+  const deleteSlotMutation = useMutation({
+    mutationFn: async (slotId: string) => (await api.delete(`/admin/availability/${slotId}`)).data,
+    onSuccess: (data) => {
+      toast.success(data?.message || "Slot deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: ["admin-slots", selectedCookIdForSchedule] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Failed to delete slot.");
     },
   });
 
@@ -163,7 +219,7 @@ const Admin = () => {
     <div className="flex flex-col min-h-screen">
       <AppBar />
       <main className="flex-1 bg-transparent px-4 py-6 sm:px-6 sm:py-8 md:px-8 space-y-6">
-        <div className="container mx-auto space-y-6">
+        <div className="container mx-auto space-y-6 max-w-5xl">
           <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card p-6 shadow-md">
             <div className="pointer-events-none absolute inset-0 opacity-60">
               <CanvasRevealEffect
@@ -179,7 +235,7 @@ const Admin = () => {
             <div className="relative z-10">
               <h2 className="text-3xl font-bold text-foreground">Admin Control Center</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Manage chefs, users, and access controls with confidence.
+                Manage chefs, schedules, users, and access controls with confidence.
               </p>
             </div>
           </div>
@@ -197,12 +253,16 @@ const Admin = () => {
           <section className="bg-card rounded-2xl border border-border/80 p-6 shadow-sm space-y-4">
             <h3 className="text-xl font-semibold">Promote Users to Admin</h3>
             <div className="space-y-3">
-              {nonAdminUsers.map((u) => (
-                <div key={u.id} className="flex flex-col gap-3 rounded-xl border border-border/80 p-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p>{u.name || "Unnamed"} ({u.email})</p>
-                  <Button className="cursor-pointer" onClick={() => promoteUserMutation.mutate(u.id)} disabled={promoteUserMutation.isPending}>Promote</Button>
-                </div>
-              ))}
+              {nonAdminUsers.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No users available for promotion.</p>
+              ) : (
+                nonAdminUsers.map((u) => (
+                  <div key={u.id} className="flex flex-col gap-3 rounded-xl border border-border/80 p-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p>{u.name || "Unnamed"} ({u.email})</p>
+                    <Button className="cursor-pointer" onClick={() => promoteUserMutation.mutate(u.id)} disabled={promoteUserMutation.isPending}>Promote</Button>
+                  </div>
+                ))
+              )}
             </div>
           </section>
 
@@ -257,17 +317,140 @@ const Admin = () => {
             </div>
           </section>
 
+          {/* Schedule Manager Section */}
+          <section className="bg-card rounded-2xl border border-border/80 p-6 shadow-sm space-y-4">
+            <h3 className="text-xl font-semibold">Manage Cook Schedules</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Select Cook</label>
+                <select
+                  value={selectedCookIdForSchedule}
+                  onChange={(e) => setSelectedCookIdForSchedule(e.target.value)}
+                  className="mt-1.5 block w-full rounded-xl border border-border/80 bg-background px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+                >
+                  <option value="">-- Choose a Cook --</option>
+                  {cooks?.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.cuisine})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {selectedCookIdForSchedule && (
+                <>
+                  <div className="h-px bg-border my-2" />
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-bold uppercase tracking-wider text-foreground">Add Availability Slot</h4>
+                    <div className="grid md:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase">Date</label>
+                        <Input
+                          type="date"
+                          value={scheduleForm.date}
+                          onChange={(e) => setScheduleForm((s) => ({ ...s, date: e.target.value }))}
+                          className="mt-1 block"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase">Start Time</label>
+                        <Input
+                          placeholder="e.g. 12:00 PM"
+                          value={scheduleForm.startTime}
+                          onChange={(e) => setScheduleForm((s) => ({ ...s, startTime: e.target.value }))}
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase">End Time</label>
+                        <Input
+                          placeholder="e.g. 03:00 PM"
+                          value={scheduleForm.endTime}
+                          onChange={(e) => setScheduleForm((s) => ({ ...s, endTime: e.target.value }))}
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => addAvailabilityMutation.mutate()}
+                      disabled={addAvailabilityMutation.isPending || !scheduleForm.date || !scheduleForm.startTime || !scheduleForm.endTime}
+                      className="cursor-pointer"
+                    >
+                      {addAvailabilityMutation.isPending ? "Adding Slot..." : "Add Availability Slot"}
+                    </Button>
+                  </div>
+
+                  <div className="h-px bg-border my-2" />
+
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-bold uppercase tracking-wider text-foreground">Existing Slots</h4>
+                    {(!adminSlots || adminSlots.length === 0) ? (
+                      <p className="text-xs text-muted-foreground">No availability slots defined for this chef.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {adminSlots.map((slot) => {
+                          const formattedSlotDate = new Date(slot.date).toLocaleDateString("en-US", {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric"
+                          });
+                          return (
+                            <div
+                              key={slot.id}
+                              className="flex flex-col gap-2 rounded-xl border border-border/60 bg-background/50 p-3 sm:flex-row sm:items-center sm:justify-between text-sm"
+                            >
+                              <div>
+                                <span className="font-semibold text-foreground">{formattedSlotDate}</span>
+                                <span className="mx-2 text-muted-foreground">•</span>
+                                <span className="text-muted-foreground">{slot.startTime} - {slot.endTime}</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                                  slot.isBooked
+                                    ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                                    : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                                }`}>
+                                  {slot.isBooked ? "Booked" : "Available"}
+                                </span>
+                                {!slot.isBooked && (
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => deleteSlotMutation.mutate(slot.id)}
+                                    disabled={deleteSlotMutation.isPending}
+                                    className="cursor-pointer text-xs h-7 px-3"
+                                  >
+                                    Delete
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+
           <section className="bg-card rounded-2xl border border-border/80 p-6 shadow-sm space-y-4">
             <h3 className="text-xl font-semibold">Manage Users</h3>
             <div className="space-y-3">
-              {users?.map((u) => (
-                <div key={u.id} className="flex flex-col gap-3 rounded-xl border border-border/80 p-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p>{u.name || "Unnamed"} ({u.email}) - {u.role}</p>
-                  <Button className="cursor-pointer" variant="destructive" onClick={() => deleteUserMutation.mutate(u.id)}>
-                    Delete User
-                  </Button>
-                </div>
-              ))}
+              {users?.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No users registered yet.</p>
+              ) : (
+                users?.map((u) => (
+                  <div key={u.id} className="flex flex-col gap-3 rounded-xl border border-border/80 p-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p>{u.name || "Unnamed"} ({u.email}) - {u.role}</p>
+                    <Button className="cursor-pointer" variant="destructive" onClick={() => deleteUserMutation.mutate(u.id)}>
+                      Delete User
+                    </Button>
+                  </div>
+                ))
+              )}
             </div>
           </section>
         </div>

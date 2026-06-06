@@ -155,8 +155,11 @@ const cooks = [
 ];
 
 async function main() {
+  // 1. Seed Cooks
+  console.log("Seeding cooks...");
+  const dbCooks = [];
   for (const cook of cooks) {
-    await prisma.cook.upsert({
+    const dbCook = await prisma.cook.upsert({
       where: { email: cook.email },
       update: {
         name: cook.name,
@@ -171,9 +174,44 @@ async function main() {
         updatedAt: new Date(),
       },
     });
+    dbCooks.push(dbCook);
   }
+  console.log(`Seed complete: upserted ${dbCooks.length} cooks.`);
 
-  console.log(`Seed complete: upserted ${cooks.length} cooks.`);
+  // 2. Clean existing slots first to avoid duplicate seeds
+  console.log("Cleaning old availability slots...");
+  await prisma.cookAvailability.deleteMany({});
+
+  // 3. Generate slots for each cook: June 8, 2026 to June 15, 2026 (inclusive)
+  console.log("Generating timeslots for the week of June 8 - June 15, 2026...");
+  const timeSlots = [
+    { startTime: "09:00 AM", endTime: "12:00 PM" },
+    { startTime: "01:00 PM", endTime: "04:00 PM" },
+    { startTime: "06:00 PM", endTime: "09:00 PM" },
+  ];
+
+  let slotsCreatedCount = 0;
+  for (const cook of dbCooks) {
+    // Generate dates: 2026-06-08 to 2026-06-15 (8 days)
+    for (let day = 8; day <= 15; day++) {
+      const dateVal = new Date(`2026-06-${day.toString().padStart(2, "0")}T00:00:00Z`);
+      
+      for (const slot of timeSlots) {
+        await prisma.cookAvailability.create({
+          data: {
+            cookId: cook.id,
+            date: dateVal,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            isBooked: false,
+          },
+        });
+        slotsCreatedCount++;
+      }
+    }
+  }
+  
+  console.log(`Success: Generated ${slotsCreatedCount} availability slots across all cooks.`);
 }
 
 main()
