@@ -60,7 +60,7 @@ model CookAvailability {
   updatedAt DateTime @updatedAt
 
   cook      Cook     @relation(fields: [cookId], references: [id], onDelete: Cascade)
-  booking   Booking?
+  bookings  Booking[]
 
   @@index([cookId])
 }
@@ -69,7 +69,7 @@ model Booking {
   id             String           @id @default(uuid())
   userId         String
   cookId         String
-  availabilityId String           @unique
+  availabilityId String
   status         BookingStatus    @default(BOOKED)
   notes          String?
   totalPrice     Int

@@ -83,7 +83,7 @@ model CookAvailability {
   updatedAt DateTime @updatedAt
 
   cook      Cook     @relation(fields: [cookId], references: [id], onDelete: Cascade)
-  booking   Booking? // Optional reverse relation if booked
+  bookings  Booking[]
 
   @@index([cookId])
 }
@@ -92,7 +92,7 @@ model Booking {
   id             String           @id @default(uuid())
   userId         String
   cookId         String
-  availabilityId String           @unique // One slot = One booking
+  availabilityId String           // Removed @unique to allow cancelled history re-bookings
   status         BookingStatus    @default(BOOKED)
   notes          String?          // Special cooking notes / dietary instructions
   totalPrice     Int              // Calculated total amount

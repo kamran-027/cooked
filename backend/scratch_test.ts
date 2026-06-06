@@ -166,6 +166,38 @@ async function runTests() {
   console.log(`✅ Verified Booking status in DB: ${cancelledBooking?.status}`);
   console.log(`✅ Verified Slot 1 isBooked status in DB (should be false): ${freedSlot1?.isBooked}`);
 
+  // 7. Test Booking the Same Slot Again (Verify the one-to-many fix works)
+  console.log("\n--- Testing Re-booking Same Slot (One-to-Many Fix Verification) ---");
+  try {
+    const rebooking = await prisma.$transaction(async (tx) => {
+      const freshSlot = await tx.cookAvailability.findUnique({
+        where: { id: slot1.id }
+      });
+
+      if (!freshSlot || freshSlot.isBooked) {
+        throw new Error("Slot already booked!");
+      }
+
+      await tx.cookAvailability.update({
+        where: { id: slot1.id },
+        data: { isBooked: true }
+      });
+
+      return await tx.booking.create({
+        data: {
+          userId: user.id,
+          cookId: cook.id,
+          availabilityId: slot1.id,
+          status: "BOOKED",
+          totalPrice
+        }
+      });
+    });
+    console.log(`✅ Re-booked Slot 1 successfully! Second Booking ID: ${rebooking.id}`);
+  } catch (error: any) {
+    console.error(`❌ Test failed: Re-booking same slot crashed: ${error.message}`);
+  }
+
   // Cleanup test entries
   console.log("\n--- Cleaning up test records ---");
   await prisma.booking.deleteMany({ where: { userId: user.id } });
