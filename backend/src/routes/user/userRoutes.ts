@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import { getCookById, getCooks } from "../../controllers/adminController.js";
 import authMiddleware from "../../middlewares/authMiddleware.js";
 import { z } from "zod";
+import { getDurationInHours } from "../../utils/time.js";
 
 dotenv.config();
 
@@ -28,6 +29,8 @@ const loginSchema = z.object({
 
 const createBookingSchema = z.object({
   cookId: z.string().uuid(),
+  availabilityId: z.string().uuid(),
+  notes: z.string().optional(),
 });
 
 const bookingIdParamsSchema = z.object({
@@ -193,13 +196,39 @@ userRouter.get("/me", authMiddleware, async (req: Request, res: Response) => {
   }
 });
 
+
+
+// Fetch all unbooked availability slots for a specific cook
+userRouter.get(
+  "/cooks/:id/availability",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+      const slots = await client.cookAvailability.findMany({
+        where: {
+          cookId: id,
+          isBooked: false,
+        },
+        orderBy: { date: "asc" },
+      });
+      return res.status(200).json(slots);
+    } catch (error) {
+      console.error("Error fetching cook availability:", error);
+      return res.status(500).json({
+        message: "Failed to fetch cook availability, please try again later.",
+      });
+    }
+  },
+);
+
 // Create a booking for the currently authenticated user.
 userRouter.post(
   "/bookings",
   authMiddleware,
   async (req: Request, res: Response) => {
     try {
-      const authUser = (req as Request & { user?: AuthPayload }).user; //Manual casting to include user from authMiddleware
+      const authUser = (req as Request & { user?: AuthPayload }).user;
       if (!authUser?.userId) {
         return res.status(401).json({ message: "Unauthorized access" });
       }
@@ -212,19 +241,65 @@ userRouter.post(
         });
       }
 
+      const { cookId, availabilityId, notes } = parsed.data;
+
+      // 1. Verify availability slot
+      const slot = await client.cookAvailability.findUnique({
+        where: { id: availabilityId },
+      });
+
+      if (!slot) {
+        return res.status(404).json({ message: "Availability slot not found!" });
+      }
+
+      if (slot.cookId !== cookId) {
+        return res.status(400).json({ message: "Slot does not belong to this cook!" });
+      }
+
+      if (slot.isBooked) {
+        return res.status(400).json({ message: "This timeslot is already booked!" });
+      }
+
+      // 2. Fetch cook rate
       const cook = await client.cook.findUnique({
-        where: { id: parsed.data.cookId },
+        where: { id: cookId },
       });
 
       if (!cook) {
         return res.status(404).json({ message: "Cook not found!" });
       }
 
-      const booking = await client.booking.create({
-        data: {
-          userId: authUser.userId,
-          cookId: parsed.data.cookId,
-        },
+      // 3. Calculate price
+      const durationHours = getDurationInHours(slot.startTime, slot.endTime);
+      const totalPrice = Math.round(cook.rate * durationHours);
+
+      // 4. Perform transaction
+      const booking = await client.$transaction(async (tx) => {
+        // Double check slot status inside transaction to prevent race conditions
+        const freshSlot = await tx.cookAvailability.findUnique({
+          where: { id: availabilityId },
+        });
+        if (!freshSlot || freshSlot.isBooked) {
+          throw new Error("This slot was just booked by another user!");
+        }
+
+        // Mark slot as booked
+        await tx.cookAvailability.update({
+          where: { id: availabilityId },
+          data: { isBooked: true },
+        });
+
+        // Create booking record
+        return await tx.booking.create({
+          data: {
+            userId: authUser.userId,
+            cookId,
+            availabilityId,
+            status: "BOOKED",
+            notes: notes || null,
+            totalPrice,
+          },
+        });
       });
 
       return res.status(201).json({
@@ -234,7 +309,10 @@ userRouter.post(
     } catch (error) {
       console.error("Error creating booking:", error);
       return res.status(500).json({
-        message: "Failed to create booking, please try again later.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to create booking, please try again later.",
       });
     }
   },
@@ -255,6 +333,7 @@ userRouter.get(
         where: { userId: authUser.userId },
         include: {
           cook: true,
+          availability: true,
         },
         orderBy: { createdAt: "desc" },
       });
@@ -269,7 +348,7 @@ userRouter.get(
   },
 );
 
-// Delete a booking by ID for the currently authenticated user.
+// Delete/Cancel a booking by ID for the currently authenticated user.
 userRouter.delete(
   "/bookings/:id",
   authMiddleware,
@@ -296,15 +375,27 @@ userRouter.delete(
         return res.status(404).json({ message: "Booking not found!" });
       }
 
-      await client.booking.delete({
-        where: { id: booking.id },
-      });
+      if (booking.status === "CANCELLED") {
+        return res.status(400).json({ message: "Booking is already cancelled!" });
+      }
 
-      return res.status(200).json({ message: "Booking deleted successfully!" });
+      // Perform transaction to set booking to CANCELLED and free slot
+      await client.$transaction([
+        client.booking.update({
+          where: { id: booking.id },
+          data: { status: "CANCELLED" },
+        }),
+        client.cookAvailability.update({
+          where: { id: booking.availabilityId },
+          data: { isBooked: false },
+        }),
+      ]);
+
+      return res.status(200).json({ message: "Booking cancelled successfully!" });
     } catch (error) {
-      console.error("Error deleting booking:", error);
+      console.error("Error cancelling booking:", error);
       return res.status(500).json({
-        message: "Failed to delete booking, please try again later.",
+        message: "Failed to cancel booking, please try again later.",
       });
     }
   },

@@ -197,3 +197,66 @@ export const createAdmin = async (
 
   return adminUser;
 };
+
+export const addAvailability = async (
+  cookId: string,
+  dateStr: string,
+  startTime: string,
+  endTime: string,
+) => {
+  if (!cookId || !dateStr || !startTime || !endTime) {
+    throw new Error("Please provide cookId, date, startTime, and endTime!");
+  }
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) {
+    throw new Error("Invalid date format!");
+  }
+
+  const cook = await client.cook.findUnique({ where: { id: cookId } });
+  if (!cook) {
+    throw new Error("Cook not found!");
+  }
+
+  const availability = await client.cookAvailability.create({
+    data: {
+      cookId,
+      date,
+      startTime,
+      endTime,
+      isBooked: false,
+    },
+  });
+
+  return availability;
+};
+
+export const getAvailabilityByCookId = async (cookId: string) => {
+  if (!cookId) {
+    throw new Error("Please provide cookId!");
+  }
+  const availabilities = await client.cookAvailability.findMany({
+    where: { cookId },
+    orderBy: { date: "asc" },
+  });
+  return availabilities;
+};
+
+export const deleteAvailabilitySlot = async (id: string) => {
+  if (!id) {
+    throw new Error("Please provide slot ID!");
+  }
+  const slot = await client.cookAvailability.findUnique({
+    where: { id },
+  });
+  if (!slot) {
+    throw new Error("Slot not found!");
+  }
+  if (slot.isBooked) {
+    throw new Error("Cannot delete a slot that is already booked!");
+  }
+  const deleted = await client.cookAvailability.delete({
+    where: { id },
+  });
+  return deleted;
+};
+
