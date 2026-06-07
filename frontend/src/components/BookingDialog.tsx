@@ -38,6 +38,18 @@ interface Cook {
   description: string;
   rate: number;
   image: string;
+  coverImage?: string;
+  averageRating?: number;
+  reviewCount?: number;
+  reviews?: {
+    id: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
+    user: {
+      name: string;
+    };
+  }[];
 }
 
 interface CookAvailability {
@@ -81,6 +93,16 @@ function getDurationInHours(start: string, end: string): number {
 
 const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
   const queryClient = useQueryClient();
+
+  const { data: fullCook } = useQuery<Cook>({
+    queryKey: ["cook-details", cook.id],
+    queryFn: async () => {
+      const response = await api.get(`/user/getCookById/${cook.id}`);
+      return response.data;
+    },
+  });
+
+  const activeCook = fullCook || cook;
   
   // Wizard Step State (Restored to 4 Steps)
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -211,7 +233,7 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
   // Pricing calculations
   const conversionRate = 83;
   const durationHours = selectedSlot ? getDurationInHours(selectedSlot.startTime, selectedSlot.endTime) : 0;
-  const totalPriceUSD = cook.rate * durationHours;
+  const totalPriceUSD = activeCook.rate * durationHours;
   const totalPriceINR = Math.round(totalPriceUSD * conversionRate);
 
 
@@ -220,7 +242,7 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
     mutationFn: async () => {
       if (!selectedSlot) throw new Error("No slot selected");
       const response = await api.post("/user/bookings", {
-        cookId: cook.id,
+        cookId: activeCook.id,
         availabilityId: selectedSlot.id,
         notes,
       });
@@ -289,12 +311,21 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
 
         {/* DIALOG BODY */}
         {!showRazorPay ? (
-          <div className={`p-6 max-h-[75vh] scrollbar-thin ${step === 1 ? "overflow-y-hidden" : "overflow-y-auto"}`}>
+          <div className={`px-6 pt-6 pb-0 max-h-[75vh] scrollbar-thin ${step === 1 ? "overflow-y-hidden" : "overflow-y-auto"}`}>
             <DialogHeader className="mb-4">
-              <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                <ChefHat className="h-5 w-5 text-primary" />
-                Book {cook.name}
-              </DialogTitle>
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                  <ChefHat className="h-5 w-5 text-primary" />
+                  Book {activeCook.name}
+                </DialogTitle>
+                {activeCook.reviewCount !== undefined && activeCook.reviewCount > 0 && (
+                  <div className="flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20 select-none mr-10 sm:mr-0">
+                    <span className="text-amber-500">★</span>
+                    <span>{activeCook.averageRating}</span>
+                    <span className="text-[10px] text-muted-foreground/80 font-normal">({activeCook.reviewCount})</span>
+                  </div>
+                )}
+              </div>
               <DialogDescription>
                 Follow the steps below to reserve your chef session.
               </DialogDescription>
@@ -314,7 +345,7 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
                 <CalendarDays className="h-10 w-10 text-muted-foreground/60 mx-auto mb-3" />
                 <p className="font-semibold text-foreground text-sm">No Open Schedules</p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto">
-                  Chef {cook.name} doesn't have any timeslots assigned. Please contact the administrator.
+                  Chef {activeCook.name} doesn't have any timeslots assigned. Please contact the administrator.
                 </p>
               </div>
             ) : (
@@ -328,7 +359,7 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
                       <p className="text-xs text-muted-foreground">Select one of the dates below to view timeslots on the next step.</p>
                     </div>
 
-                    <div className="flex flex-col gap-2.5 max-h-80 overflow-y-auto pr-1">
+                    <div className="flex flex-col gap-2.5 max-h-[290px] overflow-y-auto pr-1">
                       {datesList.map((dateKey) => {
                         const isActive = selectedDate === dateKey;
                         const bookedOut = isDateFullyBooked(dateKey);
@@ -615,10 +646,10 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
                     <div className="space-y-3">
                       {/* Chef details */}
                       <div className="flex items-center gap-3.5 rounded-2xl border border-border/60 bg-muted/25 p-3.5">
-                        <img src={cook.image} alt={cook.name} className="h-12 w-12 rounded-xl object-cover shadow-sm border border-border/40" />
+                        <img src={activeCook.image} alt={activeCook.name} className="h-12 w-12 rounded-xl object-cover shadow-sm border border-border/40" />
                         <div>
-                          <h4 className="font-bold text-foreground text-sm">{cook.name}</h4>
-                          <p className="text-xs text-muted-foreground">{cook.cuisine} Chef</p>
+                          <h4 className="font-bold text-foreground text-sm">{activeCook.name}</h4>
+                          <p className="text-xs text-muted-foreground">{activeCook.cuisine} Chef</p>
                         </div>
                       </div>
 
@@ -681,7 +712,7 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
             )}
 
             {/* BUTTON BAR - ADAPTS TO STEP */}
-            <DialogFooter className="mt-6 border-t border-border/50 pt-4 gap-2 flex items-center justify-between sm:justify-between">
+            <DialogFooter className="mt-6 border-t border-border/50 pt-4 pb-6 gap-2 flex items-center justify-between sm:justify-between">
               {step > 1 ? (
                 <Button 
                   type="button"
@@ -750,7 +781,7 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
                   </div>
                   <div>
                     <h4 className="font-bold text-white text-sm">Cooked Culinary Services</h4>
-                    <p className="text-xs text-slate-400">Booking: {cook.name} ({durationHours} hrs)</p>
+                    <p className="text-xs text-slate-400">Booking: {activeCook.name} ({durationHours} hrs)</p>
                   </div>
                 </div>
 

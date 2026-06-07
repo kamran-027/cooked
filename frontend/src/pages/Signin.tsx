@@ -9,10 +9,12 @@ import { useMutation } from "@tanstack/react-query";
 import { useUser } from "../contexts/UserContext";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import AppLogo from "@/assets/Cooked_Logo.png";
+import { Eye, EyeOff } from "lucide-react";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { setUser } = useUser();
 
@@ -97,14 +99,44 @@ const SignIn = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="********"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer focus:outline-none"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 py-1 select-none">
+              <input
+                id="sample-credentials"
+                type="checkbox"
+                checked={email === "d.rice@arsenal.com" && password === "ricericebaby"}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setEmail("d.rice@arsenal.com");
+                    setPassword("ricericebaby");
+                  } else {
+                    setEmail("");
+                    setPassword("");
+                  }
+                }}
+                className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-ring cursor-pointer"
               />
+              <label htmlFor="sample-credentials" className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                Use Sample Credentials (d.rice@arsenal.com)
+              </label>
             </div>
             <Button type="submit" className="w-full cursor-pointer" disabled={isPending}>
               {isPending ? "Signing In..." : "Sign In"}

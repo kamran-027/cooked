@@ -33,6 +33,7 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   bookings  Booking[]
+  reviews   Review[]
 }
 
 model Cook {
@@ -42,11 +43,13 @@ model Cook {
   cuisine        String?
   description    String?
   image          String?
+  coverImage     String?
   rate           Int
   createdAt      DateTime           @default(now())
-  updatedAt      DateTime
+  updatedAt      DateTime           @updatedAt
   bookings       Booking[]
   availabilities CookAvailability[]
+  reviews        Review[]
 }
 
 model CookAvailability {
@@ -83,4 +86,21 @@ model Booking {
   @@index([userId])
   @@index([cookId])
 }
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  cookId    String
+  rating    Int      // 1-5 stars
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cook      Cook     @relation(fields: [cookId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([cookId])
+}
+
 

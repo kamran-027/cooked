@@ -51,6 +51,11 @@ const Bookings = () => {
   const [deletingBookingId, setDeletingBookingId] = useState<string | null>(null);
   const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
   const [acknowledgeCancel, setAcknowledgeCancel] = useState(false);
+  
+  // Review Submission States
+  const [bookingToReview, setBookingToReview] = useState<Booking | null>(null);
+  const [reviewRating, setReviewRating] = useState<number>(5);
+  const [reviewComment, setReviewComment] = useState<string>("");
 
   const { data, isLoading, isError } = useQuery<Booking[]>({
     queryKey: ["bookings"],
@@ -78,6 +83,27 @@ const Bookings = () => {
           "Failed to cancel booking, please try again.",
       );
       setDeletingBookingId(null);
+    },
+  });
+
+  const { mutate: submitReview, isPending: isReviewPending } = useMutation({
+    mutationKey: ["submit-review"],
+    mutationFn: async ({ bookingId, rating, comment }: { bookingId: string; rating: number; comment: string }) => {
+      const response = await api.post(`/user/bookings/${bookingId}/reviews`, { rating, comment });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message || "Review submitted successfully!");
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      setBookingToReview(null);
+      setReviewRating(5);
+      setReviewComment("");
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to submit review, please try again.",
+      );
     },
   });
 
@@ -201,7 +227,22 @@ const Bookings = () => {
                     </div>
                   </div>
 
-                  <div className="shrink-0 flex items-center justify-end">
+                  <div className="shrink-0 flex items-center gap-2 flex-wrap justify-end sm:flex-nowrap">
+                    {!isCancelled && (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setBookingToReview(booking);
+                          setReviewRating(5);
+                          setReviewComment("");
+                        }}
+                        disabled={isPending}
+                        className="cursor-pointer border-amber-500/35 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 hover:text-amber-700 sm:min-w-32 rounded-xl"
+                      >
+                        <Sparkles className="h-4 w-4 text-amber-500" />
+                        Write Review
+                      </Button>
+                    )}
                     {isCancelled ? (
                       <span className="text-xs text-muted-foreground font-semibold px-4 py-2 border border-dashed border-border rounded-xl line-through">
                         Session Cancelled
@@ -214,7 +255,7 @@ const Bookings = () => {
                           setAcknowledgeCancel(false);
                         }}
                         disabled={isPending}
-                        className="cursor-pointer border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive sm:min-w-40 rounded-xl"
+                        className="cursor-pointer border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive sm:min-w-32 rounded-xl"
                       >
                         <Trash2 className="h-4 w-4" />
                         {deletingBookingId === booking.id ? "Cancelling..." : "Cancel Session"}
@@ -335,6 +376,90 @@ const Bookings = () => {
               disabled={isPending || !acknowledgeCancel}
             >
               {isPending ? "Cancelling..." : "Confirm Cancellation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(bookingToReview)}
+        onOpenChange={(open) => {
+          if (!open && !isReviewPending) {
+            setBookingToReview(null);
+            setReviewRating(5);
+            setReviewComment("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+              <Sparkles className="h-5 w-5 text-amber-500 animate-pulse" />
+              Review Chef {bookingToReview?.cook.name}
+            </DialogTitle>
+            <DialogDescription>
+              Share your dining experience with others. Your feedback helps our chefs improve!
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-3">
+            {/* Rating Stars Selection */}
+            <div className="flex flex-col items-center gap-2.5 bg-muted/20 border border-border/40 rounded-2xl p-4">
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Select Star Rating</label>
+              <div className="flex gap-2 text-2xl select-none">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    onClick={() => setReviewRating(star)}
+                    className="cursor-pointer transition-all duration-150 hover:scale-125 text-amber-500"
+                  >
+                    {star <= reviewRating ? "★" : "☆"}
+                  </span>
+                ))}
+              </div>
+              <span className="text-xs font-bold text-foreground">
+                {reviewRating === 5 && "Outstanding 🌟"}
+                {reviewRating === 4 && "Great 😊"}
+                {reviewRating === 3 && "Average 😐"}
+                {reviewRating === 2 && "Poor 🙁"}
+                {reviewRating === 1 && "Terrible 😠"}
+              </span>
+            </div>
+
+            {/* Comment Textarea */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Your Review Comments (Optional)</label>
+              <textarea
+                placeholder="How was the food? Was the kitchen left clean? Did you enjoy the menu?"
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                className="w-full min-h-[100px] text-xs rounded-xl border border-border bg-transparent p-3 outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all resize-none shadow-sm"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => setBookingToReview(null)}
+              disabled={isReviewPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="cursor-pointer bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 font-bold shadow-md"
+              onClick={() => {
+                if (!bookingToReview) return;
+                submitReview({
+                  bookingId: bookingToReview.id,
+                  rating: reviewRating,
+                  comment: reviewComment,
+                });
+              }}
+              disabled={isReviewPending}
+            >
+              {isReviewPending ? "Submitting..." : "Submit Review"}
             </Button>
           </DialogFooter>
         </DialogContent>

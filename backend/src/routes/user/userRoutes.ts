@@ -37,6 +37,11 @@ const bookingIdParamsSchema = z.object({
   id: z.string().uuid(),
 });
 
+const createReviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().optional(),
+});
+
 type AuthPayload = {
   userId: string;
   email: string;
@@ -395,6 +400,70 @@ userRouter.delete(
       console.error("Error cancelling booking:", error);
       return res.status(500).json({
         message: "Failed to cancel booking, please try again later.",
+      });
+    }
+  },
+);
+
+// Submit a review for a cook based on a booking.
+userRouter.post(
+  "/bookings/:id/reviews",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    try {
+      const authUser = (req as Request & { user?: AuthPayload }).user;
+      if (!authUser?.userId) {
+        return res.status(401).json({ message: "Unauthorized access" });
+      }
+
+      const parsedParams = bookingIdParamsSchema.safeParse(req.params);
+      if (!parsedParams.success) {
+        return res.status(400).json({
+          message: "Invalid booking id",
+          errors: parsedParams.error.issues,
+        });
+      }
+
+      const parsedBody = createReviewSchema.safeParse(req.body);
+      if (!parsedBody.success) {
+        return res.status(400).json({
+          message: "Invalid review content",
+          errors: parsedBody.error.issues,
+        });
+      }
+
+      const { rating, comment } = parsedBody.data;
+
+      // Find the booking to ensure it belongs to the user and exists
+      const booking = await client.booking.findUnique({
+        where: { id: parsedParams.data.id },
+      });
+
+      if (!booking || booking.userId !== authUser.userId) {
+        return res.status(404).json({ message: "Booking not found!" });
+      }
+
+      if (booking.status === "CANCELLED") {
+        return res.status(400).json({ message: "Cannot review a cancelled booking!" });
+      }
+
+      const newReview = await client.review.create({
+        data: {
+          userId: authUser.userId,
+          cookId: booking.cookId,
+          rating,
+          comment,
+        },
+      });
+
+      return res.status(201).json({
+        message: "Review submitted successfully!",
+        review: newReview,
+      });
+    } catch (error) {
+      console.error("Error creating review:", error);
+      return res.status(500).json({
+        message: "Failed to submit review, please try again later.",
       });
     }
   },

@@ -10,6 +10,7 @@ export const addCook = async (
   cuisine: string,
   description: string,
   image: string,
+  coverImage?: string,
 ) => {
   if (!name || !email || !rate) {
     throw new Error("Please provide all the required fields!");
@@ -31,6 +32,7 @@ export const addCook = async (
       cuisine,
       description,
       image,
+      coverImage,
       updatedAt: new Date(),
     },
   });
@@ -43,7 +45,7 @@ export const updateCoook = async (id: string, body: any) => {
     throw new Error("Please provide cook Id!");
   }
 
-  const { name, email, rate, cuisine, description, image } = body;
+  const { name, email, rate, cuisine, description, image, coverImage } = body;
 
   const cookExists = await client.cook.findUnique({
     where: { id },
@@ -62,6 +64,7 @@ export const updateCoook = async (id: string, body: any) => {
       cuisine: cuisine || cookExists.cuisine,
       description: description || cookExists.description,
       image: image || cookExists.image,
+      coverImage: coverImage || cookExists.coverImage,
       updatedAt: new Date(),
     },
   });
@@ -91,8 +94,34 @@ export const deleteCook = async (id: string) => {
 
 export const getCooks = async () => {
   try {
-    const cooks = await client.cook.findMany();
-    return cooks;
+    const cooks = await client.cook.findMany({
+      include: {
+        reviews: true,
+      },
+    });
+
+    const cooksWithRatings = cooks.map((cook) => {
+      const reviews = cook.reviews || [];
+      const reviewCount = reviews.length;
+      const averageRating =
+        reviewCount > 0
+          ? parseFloat(
+              (
+                reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+              ).toFixed(1),
+            )
+          : 0;
+
+      // Omit full reviews list to save response size in index query
+      const { reviews: _, ...rest } = cook;
+      return {
+        ...rest,
+        averageRating,
+        reviewCount,
+      };
+    });
+
+    return cooksWithRatings;
   } catch (error) {
     return {
       status: 500,
@@ -108,13 +137,42 @@ export const getCookById = async (id: string) => {
 
   const cook = await client.cook.findUnique({
     where: { id },
+    include: {
+      reviews: {
+        include: {
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
   });
 
   if (!cook) {
     throw new Error("Cook not found!");
   }
 
-  return cook;
+  const reviews = cook.reviews || [];
+  const reviewCount = reviews.length;
+  const averageRating =
+    reviewCount > 0
+      ? parseFloat(
+          (reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(
+            1,
+          ),
+        )
+      : 0;
+
+  return {
+    ...cook,
+    averageRating,
+    reviewCount,
+  };
 };
 
 export const deleteUser = async (id: string) => {

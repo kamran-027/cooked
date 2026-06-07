@@ -9,6 +9,16 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CanvasRevealEffect } from "@/components/ui/canvas-reveal-effect";
+import { Eye, EyeOff, ChevronDown } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 interface User {
   id: string;
@@ -25,6 +35,7 @@ interface Cook {
   description: string;
   rate: number;
   image: string;
+  coverImage?: string;
 }
 
 interface CookAvailability {
@@ -41,6 +52,7 @@ const Admin = () => {
   const queryClient = useQueryClient();
 
   const [adminForm, setAdminForm] = useState({ name: "", email: "", password: "" });
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [cookForm, setCookForm] = useState({
     name: "",
     email: "",
@@ -48,6 +60,16 @@ const Admin = () => {
     cuisine: "",
     description: "",
     image: "",
+    coverImage: "",
+  });
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    rate: "",
+    cuisine: "",
+    description: "",
+    image: "",
+    coverImage: "",
   });
   const [editingCookId, setEditingCookId] = useState<string | null>(null);
 
@@ -130,6 +152,7 @@ const Admin = () => {
         cuisine: "",
         description: "",
         image: "",
+        coverImage: "",
       });
       queryClient.invalidateQueries({ queryKey: ["admin-cooks"] });
     },
@@ -139,23 +162,24 @@ const Admin = () => {
   });
 
   const updateCookMutation = useMutation({
-    mutationFn: async () =>
+    mutationFn: async (payload: { id: string; data: any }) =>
       (
-        await api.put(`/admin/updateCook/${editingCookId}`, {
-          ...cookForm,
-          rate: Number(cookForm.rate),
+        await api.put(`/admin/updateCook/${payload.id}`, {
+          ...payload.data,
+          rate: Number(payload.data.rate),
         })
       ).data,
     onSuccess: (data) => {
       toast.success(data?.message || "Cook updated successfully!");
       setEditingCookId(null);
-      setCookForm({
+      setEditForm({
         name: "",
         email: "",
         rate: "",
         cuisine: "",
         description: "",
         image: "",
+        coverImage: "",
       });
       queryClient.invalidateQueries({ queryKey: ["admin-cooks"] });
     },
@@ -245,7 +269,22 @@ const Admin = () => {
             <div className="grid md:grid-cols-3 gap-3">
               <Input placeholder="Name" value={adminForm.name} onChange={(e) => setAdminForm((s) => ({ ...s, name: e.target.value }))} />
               <Input placeholder="Email" value={adminForm.email} onChange={(e) => setAdminForm((s) => ({ ...s, email: e.target.value }))} />
-              <Input placeholder="Password" type="password" value={adminForm.password} onChange={(e) => setAdminForm((s) => ({ ...s, password: e.target.value }))} />
+              <div className="relative">
+                <Input 
+                  placeholder="Password" 
+                  type={showAdminPassword ? "text" : "password"} 
+                  value={adminForm.password} 
+                  onChange={(e) => setAdminForm((s) => ({ ...s, password: e.target.value }))} 
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowAdminPassword(!showAdminPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer focus:outline-none"
+                >
+                  {showAdminPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <Button className="cursor-pointer" onClick={() => createAdminMutation.mutate()} disabled={createAdminMutation.isPending}>Create Admin</Button>
           </section>
@@ -267,7 +306,7 @@ const Admin = () => {
           </section>
 
           <section className="bg-card rounded-2xl border border-border/80 p-6 shadow-sm space-y-4">
-            <h3 className="text-xl font-semibold">Manage Cooks</h3>
+            <h3 className="text-xl font-semibold">Add New Cook</h3>
             <div className="grid md:grid-cols-3 gap-3">
               <Input placeholder="Name" value={cookForm.name} onChange={(e) => setCookForm((s) => ({ ...s, name: e.target.value }))} />
               <Input placeholder="Email" value={cookForm.email} onChange={(e) => setCookForm((s) => ({ ...s, email: e.target.value }))} />
@@ -275,19 +314,12 @@ const Admin = () => {
               <Input placeholder="Cuisine" value={cookForm.cuisine} onChange={(e) => setCookForm((s) => ({ ...s, cuisine: e.target.value }))} />
               <Input placeholder="Description" value={cookForm.description} onChange={(e) => setCookForm((s) => ({ ...s, description: e.target.value }))} />
               <Input placeholder="Image URL" value={cookForm.image} onChange={(e) => setCookForm((s) => ({ ...s, image: e.target.value }))} />
+              <Input placeholder="Cover Image URL" value={cookForm.coverImage} onChange={(e) => setCookForm((s) => ({ ...s, coverImage: e.target.value }))} />
             </div>
             <div className="flex gap-3">
-              <Button className="cursor-pointer" onClick={() => (editingCookId ? updateCookMutation.mutate() : addCookMutation.mutate())} disabled={addCookMutation.isPending || updateCookMutation.isPending}>
-                {editingCookId ? "Update Cook" : "Add Cook"}
+              <Button className="cursor-pointer" onClick={() => addCookMutation.mutate()} disabled={addCookMutation.isPending}>
+                Add Cook
               </Button>
-              {editingCookId && (
-                <Button className="cursor-pointer" variant="outline" onClick={() => {
-                  setEditingCookId(null);
-                  setCookForm({ name: "", email: "", rate: "", cuisine: "", description: "", image: "" });
-                }}>
-                  Cancel Edit
-                </Button>
-              )}
             </div>
 
             <div className="space-y-3">
@@ -297,13 +329,14 @@ const Admin = () => {
                   <div className="flex gap-2">
                     <Button className="cursor-pointer" variant="outline" onClick={() => {
                       setEditingCookId(cook.id);
-                      setCookForm({
-                        name: cook.name,
-                        email: cook.email,
-                        rate: String(cook.rate),
-                        cuisine: cook.cuisine,
-                        description: cook.description,
-                        image: cook.image,
+                      setEditForm({
+                        name: cook.name || "",
+                        email: cook.email || "",
+                        rate: String(cook.rate || ""),
+                        cuisine: cook.cuisine || "",
+                        description: cook.description || "",
+                        image: cook.image || "",
+                        coverImage: cook.coverImage || "",
                       });
                     }}>
                       Edit
@@ -323,18 +356,47 @@ const Admin = () => {
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Select Cook</label>
-                <select
-                  value={selectedCookIdForSchedule}
-                  onChange={(e) => setSelectedCookIdForSchedule(e.target.value)}
-                  className="mt-1.5 block w-full rounded-xl border border-border/80 bg-background px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary"
-                >
-                  <option value="">-- Choose a Cook --</option>
-                  {cooks?.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} ({c.cuisine})
-                    </option>
-                  ))}
-                </select>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className="mt-1.5 w-full flex items-center justify-between rounded-xl border border-border/80 bg-card px-3 py-2.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary text-left font-normal"
+                    >
+                      <span>
+                        {selectedCookIdForSchedule
+                          ? cooks?.find((c) => c.id === selectedCookIdForSchedule)?.name || "Select Cook"
+                          : "-- Choose a Cook --"}
+                      </span>
+                      <ChevronDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-card border border-border/80 rounded-xl shadow-lg p-1">
+                    <DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                      Cooks List
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      className="cursor-pointer"
+                      onClick={() => setSelectedCookIdForSchedule("")}
+                    >
+                      -- Clear Selection --
+                    </DropdownMenuItem>
+                    {cooks === undefined ? (
+                      <DropdownMenuItem disabled>Loading cooks...</DropdownMenuItem>
+                    ) : (
+                      cooks.map((c) => (
+                        <DropdownMenuItem
+                          key={c.id}
+                          className="cursor-pointer flex items-center justify-between"
+                          onClick={() => setSelectedCookIdForSchedule(c.id)}
+                        >
+                          <span>{c.name}</span>
+                          <span className="text-xs text-muted-foreground">({c.cuisine})</span>
+                        </DropdownMenuItem>
+                      ))
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               {selectedCookIdForSchedule && (
@@ -455,6 +517,63 @@ const Admin = () => {
           </section>
         </div>
       </main>
+
+      {/* Edit Cook Dialog Modal */}
+      <Dialog open={!!editingCookId} onOpenChange={(open) => { if (!open) setEditingCookId(null); }}>
+        <DialogContent className="sm:max-w-lg bg-card border border-border/80 rounded-2xl shadow-xl p-6">
+          <DialogHeader className="text-left">
+            <DialogTitle className="text-xl font-bold text-foreground">Edit Chef Profile</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground mt-1">
+              Modify the chef details below. Click save to apply changes.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-1">
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Name</label>
+              <Input value={editForm.name} onChange={(e) => setEditForm((s) => ({ ...s, name: e.target.value }))} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Email</label>
+              <Input value={editForm.email} onChange={(e) => setEditForm((s) => ({ ...s, email: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Rate ($/hr)</label>
+                <Input type="number" value={editForm.rate} onChange={(e) => setEditForm((s) => ({ ...s, rate: e.target.value }))} />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Cuisine</label>
+                <Input value={editForm.cuisine} onChange={(e) => setEditForm((s) => ({ ...s, cuisine: e.target.value }))} />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Description</label>
+              <Input value={editForm.description} onChange={(e) => setEditForm((s) => ({ ...s, description: e.target.value }))} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Profile Image URL</label>
+              <Input value={editForm.image} onChange={(e) => setEditForm((s) => ({ ...s, image: e.target.value }))} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Cuisine Cover Image URL</label>
+              <Input value={editForm.coverImage} onChange={(e) => setEditForm((s) => ({ ...s, coverImage: e.target.value }))} />
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2 justify-end mt-4">
+            <Button variant="outline" className="cursor-pointer" onClick={() => setEditingCookId(null)}>
+              Cancel
+            </Button>
+            <Button 
+              className="cursor-pointer" 
+              onClick={() => updateCookMutation.mutate({ id: editingCookId!, data: editForm })}
+              disabled={updateCookMutation.isPending}
+            >
+              {updateCookMutation.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
