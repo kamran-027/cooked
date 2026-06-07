@@ -1,0 +1,409 @@
+{
+	"info": {
+		"_postman_id": "c1a01ef2-5cf0-4dbf-8c3c-cb89d970366a",
+		"name": "Cooked Phase 2 APIs",
+		"description": "API requests for Cooked Phase 2 - Predefined timeslot booking, payment mockups, user cancellations, and admin availability management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "User Authentication",
+			"item": [
+				{
+					"name": "User Signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"securePassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();",
+									"if (responseJson.token) {",
+									"    pm.collectionVariables.set(\"userToken\", responseJson.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"securePassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Profile (Me)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"me"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Operations",
+			"item": [
+				{
+					"name": "Get Cooks List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/getCooks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"getCooks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cook Available Slots",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/cooks/:cookId/availability",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"cooks",
+								":cookId",
+								"availability"
+							],
+							"variable": [
+								{
+									"key": "cookId",
+									"value": "ENTER_COOK_UUID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Book Cook Slot",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cookId\": \"ENTER_COOK_UUID_HERE\",\n  \"availabilityId\": \"ENTER_SLOT_UUID_HERE\",\n  \"notes\": \"Dietary preference: Low spice and vegetarian menu please.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/bookings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Bookings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/bookings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Booking Session",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{userToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/bookings/:bookingId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"bookings",
+								":bookingId"
+							],
+							"variable": [
+								{
+									"key": "bookingId",
+									"value": "ENTER_BOOKING_UUID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin Management",
+			"item": [
+				{
+					"name": "Register Admin Directly",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Master Chef Admin\",\n  \"email\": \"admin@cooked.com\",\n  \"password\": \"adminSecure123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/addAdmin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"addAdmin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Add Cook Slot",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"date\": \"2026-06-15\",\n  \"startTime\": \"12:00 PM\",\n  \"endTime\": \"03:00 PM\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/cooks/:cookId/availability",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"cooks",
+								":cookId",
+								"availability"
+							],
+							"variable": [
+								{
+									"key": "cookId",
+									"value": "ENTER_COOK_UUID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Get All Cook Slots",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/cooks/:cookId/availability",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"cooks",
+								":cookId",
+								"availability"
+							],
+							"variable": [
+								{
+									"key": "cookId",
+									"value": "ENTER_COOK_UUID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Delete Cook Slot",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/availability/:slotId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"availability",
+								":slotId"
+							],
+							"variable": [
+								{
+									"key": "slotId",
+									"value": "ENTER_SLOT_UUID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "userToken",
+			"value": "YOUR_USER_JWT_TOKEN",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": "YOUR_ADMIN_JWT_TOKEN",
+			"type": "string"
+		}
+	]
+}

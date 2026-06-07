@@ -10,6 +10,9 @@ import {
   getCooks,
   deleteUser,
   getUsers,
+  addAvailability,
+  getAvailabilityByCookId,
+  deleteAvailabilitySlot,
 } from "../../controllers/adminController.js";
 import authMiddleware from "../../middlewares/authMiddleware.js";
 
@@ -253,5 +256,80 @@ adminRouter.post("/addAdmin", async (req: Request, res: Response) => {
     });
   }
 });
+
+// Admin adds a new availability slot for a cook
+adminRouter.post(
+  "/cooks/:id/availability",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    if (!requireAdmin(req, res)) return;
+    const { id } = req.params;
+    const { date, startTime, endTime } = req.body;
+
+    try {
+      const slot = await addAvailability(id, date, startTime, endTime);
+      return res.status(201).json({
+        message: "Availability slot added successfully!",
+        slot,
+      });
+    } catch (error) {
+      console.error("Error adding availability:", error);
+      return res.status(500).json({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to add availability, please try again later.",
+      });
+    }
+  },
+);
+
+// Admin gets all availability slots (both booked and unbooked) for a cook
+adminRouter.get(
+  "/cooks/:id/availability",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    if (!requireAdmin(req, res)) return;
+    const { id } = req.params;
+
+    try {
+      const slots = await getAvailabilityByCookId(id);
+      return res.status(200).json(slots);
+    } catch (error) {
+      console.error("Error fetching cook availabilities:", error);
+      return res.status(500).json({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch cook availability slots, please try again later.",
+      });
+    }
+  },
+);
+
+// Admin deletes an availability slot
+adminRouter.delete(
+  "/availability/:id",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    if (!requireAdmin(req, res)) return;
+    const { id } = req.params;
+
+    try {
+      await deleteAvailabilitySlot(id);
+      return res.status(200).json({
+        message: "Availability slot deleted successfully!",
+      });
+    } catch (error) {
+      console.error("Error deleting availability slot:", error);
+      return res.status(500).json({
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete availability slot, please try again later.",
+      });
+    }
+  },
+);
 
 export default adminRouter;

@@ -17,6 +17,7 @@ interface Cook {
   description: string;
   rate: number;
   image: string;
+  coverImage?: string;
 }
 
 const fetchCooks = async () => {
@@ -120,11 +121,7 @@ const Main = () => {
               )}
             </div>
             {heroCook && (
-              <ThreeDCardDemo
-                title={heroCook.name}
-                subtitle={heroCook.cuisine}
-                image={heroCook.image}
-              />
+              <ThreeDCardDemo cook={heroCook} />
             )}
           </div>
         </div>

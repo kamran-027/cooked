@@ -19,6 +19,11 @@ enum Role {
   ADMIN
 }
 
+enum BookingStatus {
+  BOOKED
+  CANCELLED
+}
+
 model User {
   id        String    @id @default(uuid())
   name      String?
@@ -28,31 +33,74 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   bookings  Booking[]
+  reviews   Review[]
 }
 
 model Cook {
-  id          String   @id @default(uuid())
-  name        String?
-  email       String   @unique
-  cuisine     String?
-  description String?
-  image       String?
-  rate        Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
-  bookings    Booking[]
+  id             String             @id @default(uuid())
+  name           String?
+  email          String             @unique
+  cuisine        String?
+  description    String?
+  image          String?
+  coverImage     String?
+  rate           Int
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  bookings       Booking[]
+  availabilities CookAvailability[]
+  reviews        Review[]
 }
 
-model Booking {
+model CookAvailability {
   id        String   @id @default(uuid())
-  userId    String
   cookId    String
+  date      DateTime
+  startTime String
+  endTime   String
+  isBooked  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cook Cook @relation(fields: [cookId], references: [id], onDelete: Cascade)
+  cook      Cook     @relation(fields: [cookId], references: [id], onDelete: Cascade)
+  bookings  Booking[]
+
+  @@index([cookId])
+}
+
+model Booking {
+  id             String           @id @default(uuid())
+  userId         String
+  cookId         String
+  availabilityId String
+  status         BookingStatus    @default(BOOKED)
+  notes          String?
+  totalPrice     Int
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cook           Cook             @relation(fields: [cookId], references: [id], onDelete: Cascade)
+  availability   CookAvailability @relation(fields: [availabilityId], references: [id])
 
   @@index([userId])
   @@index([cookId])
 }
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  cookId    String
+  rating    Int      // 1-5 stars
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cook      Cook     @relation(fields: [cookId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([cookId])
+}
+
+

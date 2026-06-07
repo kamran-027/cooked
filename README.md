@@ -1,6 +1,23 @@
 # Cooked 🍲
 
-Book your cooks in one-go with Cooked
+Book your cooks in one-go with Cooked. Cooked is a modern premium platform linking food lovers with professional private culinary chefs.
+
+---
+
+## Key Features & Highlights
+
+- **Split-Panel Interactive Booking Modal**: An upgraded interactive booking wizard layout:
+  - **Left Side**: Displays Chef details, rate, cuisine, bio, and a dedicated scrollable **Customer Reviews / Comments** section.
+  - **Right Side**: Steps through Date selection, visual **SVG Clock Face Timeslot Selector**, dietary preferences, cost receipt breakdown, and a simulated secure payment workflow.
+- **Visual SVG Clock-Face Scheduler**: Choose slots visually by clicking sectors representing morning, afternoon, or evening availability.
+- **Secure Mock RazorPay checkout**: Simulate a payment checkout processing flow using card, UPI, or popular Netbanking accounts directly within the wizard.
+- **Admin Dashboard Control Panel**:
+  - Decoupled admin controls with a dedicated **Edit Cook Profile** Dialog modal.
+  - Custom custom-styled ShadCN DropdownMenu component for selecting and managing timeslot schedules.
+- **Sample Credentials Auto-login**: A quick checkbox option on the signin screen to auto-fill sample credentials (`d.rice@arsenal.com` / `ricericebaby`).
+- **Show/Hide Password Toggle**: Toggle visibility for passwords in registration/signin fields.
+
+---
 
 ## Technologies Used
 
@@ -11,13 +28,17 @@ Book your cooks in one-go with Cooked
 - [TypeScript](https://www.typescriptlang.org/) - A typed superset of JavaScript.
 - [Tailwind CSS](https://tailwindcss.com/) - A utility-first CSS framework.
 - [React Router](https://reactrouter.com/) - A declarative routing library for React.
+- [Lucide React](https://lucide.dev/) - Premium vector icons.
 
 ### Backend
 
 - [Node.js](https://nodejs.org/) - A JavaScript runtime built on Chrome's V8 JavaScript engine.
-- [Express.js](https://expressjs.com/) - A fast, unopinionated, minimalist web framework for Node.js.
+- [Express.js](https://expressjs.com/) - A fast, minimalist web framework.
 - [Prisma](https://www.prisma.io/) - A next-generation ORM for Node.js and TypeScript.
-- [JSON Web Tokens (JWT)](https://jwt.io/) - A compact, URL-safe means of representing claims to be transferred between two parties.
+- [PostgreSQL](https://www.postgresql.org/) - Production-ready relational database.
+- [JSON Web Tokens (JWT)](https://jwt.io/) - Secure transmission of authorization states.
+
+---
 
 ## Getting Started
 
@@ -47,35 +68,37 @@ To get a local copy up and running, follow these simple steps.
 
 ### Running the Application
 
-1.  **Backend:**
+1. **Backend:**
 
-    In the `backend` directory, you can run the development server:
+   In the `backend` directory, run the development server:
+   ```sh
+   npm run dev
+   ```
 
-    ```sh
-    npm run dev
-    ```
+2. **Frontend:**
 
-2.  **Frontend:**
+   In the `frontend` directory, run the development server:
+   ```sh
+   npm run dev
+   ```
 
-    In the `frontend` directory, you can run the development server:
-
-    ```sh
-    npm run dev
-    ```
+---
 
 ## Project Structure
 
 ```
 .
 ├── backend
-│   ├── prisma
-│   └── src
+│   ├── prisma       # Database migrations and seed script
+│   └── src          # Controllers, models, routers, and server logic
 └── frontend
-    ├── public
+    ├── public       # Image assets and static files
     └── src
-        ├── components
-        └── pages
+        ├── components  # Reusable React components (Clock face, dialogs, cards)
+        └── pages       # Main route screens (Signin, Signup, Main, Admin Control)
 ```
+
+---
 
 ## Available Scripts
 

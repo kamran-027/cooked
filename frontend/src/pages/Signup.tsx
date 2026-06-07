@@ -8,11 +8,13 @@ import { Label } from "../components/ui/label";
 import api from "@/lib/axios";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import AppLogo from "@/assets/Cooked_Logo.png";
+import { Eye, EyeOff } from "lucide-react";
 
 const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const signUpUser = async () => {
@@ -87,9 +89,26 @@ const SignUp = () => {
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" placeholder="sam.cook@cooked.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
-            <div className="space-y-2">
+             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="********" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer focus:outline-none"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
             <Button type="submit" className="w-full cursor-pointer" disabled={isPending}>
               {isPending ? "Creating Account..." : "Sign Up"}
