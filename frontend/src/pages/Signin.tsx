@@ -38,7 +38,7 @@ const SignIn = () => {
     onError(error: any) {
       toast.error(
         error?.response?.data?.message ||
-          "Error Signing In! Please check details again",
+        "Error Signing In! Please check details again",
       );
     },
   });
@@ -132,7 +132,7 @@ const SignIn = () => {
                     setPassword("");
                   }
                 }}
-                className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-ring cursor-pointer"
+                className="h-4 w-4 rounded-2xl border-border bg-background text-primary focus:ring-ring cursor-pointer"
               />
               <label htmlFor="sample-credentials" className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
                 Use Sample Credentials (d.rice@arsenal.com)
