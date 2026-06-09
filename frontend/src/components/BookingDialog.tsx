@@ -278,7 +278,7 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-md md:max-w-4xl w-[95vw] overflow-hidden border-border bg-card p-0 h-[90vh] md:h-[650px] flex flex-col md:flex-row">
         {/* Left Side: Cook Info & Reviews */}
-        <div className="w-full md:w-[350px] shrink-0 border-b md:border-b-0 md:border-r border-border/60 bg-muted/5 flex flex-col h-[280px] md:h-full overflow-y-auto md:overflow-hidden select-none">
+        <div className="hidden md:flex md:w-[350px] shrink-0 border-r border-border/60 bg-muted/5 flex-col md:h-full overflow-hidden select-none">
           {/* Cover Image & Profile Overlay */}
           <div className="h-24 md:h-28 relative shrink-0 w-full overflow-hidden bg-muted">
             {activeCook.coverImage ? (
@@ -381,12 +381,12 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
                       }`}>
                         {isCompleted ? "✓" : stepNum}
                       </span>
-                      <span className={`text-[11px] ${
+                      <span className={`text-[11px] ${isCurrent ? "inline" : "hidden sm:inline"} ${
                         isCurrent ? "text-foreground font-bold" : "text-muted-foreground/50"
                       }`}>
                         {name}
                       </span>
-                      {i < 3 && <span className="text-muted-foreground/25 font-light mx-0.5">➔</span>}
+                      {i < 3 && <span className="text-muted-foreground/25 font-light mx-0.5 hidden sm:inline">➔</span>}
                     </div>
                   );
                 })}
@@ -396,9 +396,9 @@ const BookingDialog = ({ cook, onClose }: BookingDialogProps) => {
               <div className="flex-1 overflow-y-auto px-6 py-4 scrollbar-thin">
                 <DialogHeader className="mb-4">
                   <div className="flex items-center justify-between">
-                    <DialogTitle className="text-lg font-bold flex items-center gap-2">
-                      <ChefHat className="h-5 w-5 text-primary" />
-                      Book {activeCook.name}
+                    <DialogTitle className="text-lg font-bold flex items-center gap-2.5">
+                      <img src={activeCook.image} alt={activeCook.name} className="h-7 w-7 rounded-full object-cover border border-border/40 md:hidden shrink-0" />
+                      <span>Book {activeCook.name}</span>
                     </DialogTitle>
                     {activeCook.reviewCount !== undefined && activeCook.reviewCount > 0 && (
                       <div className="flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20 select-none mr-10 sm:mr-0">
