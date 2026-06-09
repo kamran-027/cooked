@@ -1,116 +1,77 @@
-# Cooked 🍲
+# Cooked 🍲 – Application Overview & Setup Guide
 
-Book your cooks in one-go with Cooked. Cooked is a modern premium platform linking food lovers with professional private culinary chefs.
+Cooked connects food lovers with professional private culinary chefs, featuring custom booking flows, mock payment checkout options, and admin control panels.
 
----
+## Key Features
 
-## Key Features & Highlights
+### Interactive Chef Discovery
+- Browse verified chefs with ratings, hourly rates, specialties, and cover banners.
+- Featured chef showcase utilizing a custom 3D card layout on the landing page hero section.
 
-- **Split-Panel Interactive Booking Modal**: An upgraded interactive booking wizard layout:
-  - **Left Side**: Displays Chef details, rate, cuisine, bio, and a dedicated scrollable **Customer Reviews / Comments** section.
-  - **Right Side**: Steps through Date selection, visual **SVG Clock Face Timeslot Selector**, dietary preferences, cost receipt breakdown, and a simulated secure payment workflow.
-- **Visual SVG Clock-Face Scheduler**: Choose slots visually by clicking sectors representing morning, afternoon, or evening availability.
-- **Secure Mock RazorPay checkout**: Simulate a payment checkout processing flow using card, UPI, or popular Netbanking accounts directly within the wizard.
-- **Admin Dashboard Control Panel**:
-  - Decoupled admin controls with a dedicated **Edit Cook Profile** Dialog modal.
-  - Custom custom-styled ShadCN DropdownMenu component for selecting and managing timeslot schedules.
-- **Sample Credentials Auto-login**: A quick checkbox option on the signin screen to auto-fill sample credentials (`d.rice@arsenal.com` / `ricericebaby`).
-- **Show/Hide Password Toggle**: Toggle visibility for passwords in registration/signin fields.
+### Split-Panel Booking Wizard
+- **Step 1 (Date)**: Check open availability slots and pick a target date.
+- **Step 2 (Timeslot)**: Clickable SVG Clock Face. Interactively choose morning, afternoon, or evening slots.
+- **Step 3 (Dietary)**: Customize specific kitchen requests or meal preferences.
+- **Step 4 (Checkout)**: Visual breakdown of hours, rates, and total cost.
 
----
+### Simulated Secure Payments
+- Simulates the RazorPay Gateway Checkout experience (UPI handles, Card inputs with visibility toggles, and Netbanking lists) directly within the wizard.
 
-## Technologies Used
+### Review System
+- Read ratings and comments left by other customers under the chef profile.
+- Submit star ratings and text reviews for completed bookings directly from the client panel.
 
-### Frontend
+### My Bookings Center
+- Track scheduled reservations, review status updates, cancel slots, or leave chef feedback.
 
-- [React](https://reactjs.org/) - A JavaScript library for building user interfaces.
-- [Vite](https://vitejs.dev/) - A fast build tool for modern web development.
-- [TypeScript](https://www.typescriptlang.org/) - A typed superset of JavaScript.
-- [Tailwind CSS](https://tailwindcss.com/) - A utility-first CSS framework.
-- [React Router](https://reactrouter.com/) - A declarative routing library for React.
-- [Lucide React](https://lucide.dev/) - Premium vector icons.
+### Admin Dashboard Control
+- Edit, delete, or add chef profiles within dedicated edit modals.
+- Select chefs using custom dropdown interfaces and add date/time availability slots.
+- Control registration keys and promote standard accounts to administrators.
 
-### Backend
-
-- [Node.js](https://nodejs.org/) - A JavaScript runtime built on Chrome's V8 JavaScript engine.
-- [Express.js](https://expressjs.com/) - A fast, minimalist web framework.
-- [Prisma](https://www.prisma.io/) - A next-generation ORM for Node.js and TypeScript.
-- [PostgreSQL](https://www.postgresql.org/) - Production-ready relational database.
-- [JSON Web Tokens (JWT)](https://jwt.io/) - Secure transmission of authorization states.
+### Security & Convenience Toggles
+- Password input eye toggles.
+- Sample credentials shortcut checkbox on the login page for automated sign-in.
 
 ---
 
-## Getting Started
+## Setup Guide
 
-To get a local copy up and running, follow these simple steps.
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/en/download/)
-- [npm](https://www.npmjs.com/get-npm)
-
-### Installation
-
-1. Clone the repo
-   ```sh
-   git clone https://github.com/your_username_/your_project_name.git
-   ```
-2. Install NPM packages for the backend
-   ```sh
+### 1. Backend Setup
+1. Navigate to the backend directory:
+   ```bash
    cd backend
+   ```
+2. Install dependencies:
+   ```bash
    npm install
    ```
-3. Install NPM packages for the frontend
-   ```sh
+3. Configure your database URL and JWT credentials inside a `.env` file:
+   ```env
+   DATABASE_URL="YOUR_DATABASE_CONNECTION_STRING"
+   JWT_SECRET="YOUR_JWT_SIGNING_SECRET"
+   PORT=5000
+   ```
+4. Push schema layouts and run data seeds:
+   ```bash
+   npx prisma db push --force-reset
+   npx prisma db seed
+   ```
+5. Run the dev server:
+   ```bash
+   npm run dev
+   ```
+
+### 2. Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
    cd ../frontend
+   ```
+2. Install client dependencies:
+   ```bash
    npm install
    ```
-
-### Running the Application
-
-1. **Backend:**
-
-   In the `backend` directory, run the development server:
-   ```sh
+3. Run the development server:
+   ```bash
    npm run dev
    ```
-
-2. **Frontend:**
-
-   In the `frontend` directory, run the development server:
-   ```sh
-   npm run dev
-   ```
-
----
-
-## Project Structure
-
-```
-.
-├── backend
-│   ├── prisma       # Database migrations and seed script
-│   └── src          # Controllers, models, routers, and server logic
-└── frontend
-    ├── public       # Image assets and static files
-    └── src
-        ├── components  # Reusable React components (Clock face, dialogs, cards)
-        └── pages       # Main route screens (Signin, Signup, Main, Admin Control)
-```
-
----
-
-## Available Scripts
-
-### Frontend
-
-- `npm run dev`: Runs the app in the development mode.
-- `npm run build`: Builds the app for production.
-- `npm run lint`: Lints the code.
-- `npm run preview`: Previews the production build.
-
-### Backend
-
-- `npm run dev`: Runs the app in the development mode with hot-reloading.
-- `npm run build`: Compiles the TypeScript code to JavaScript.
-- `npm run start`: Starts the production server.
