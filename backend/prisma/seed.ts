@@ -136,7 +136,7 @@ const cooks = [
     cuisine: "Eastern European",
     description: "Hearty Eastern European soups, dumplings, and baked specialties.",
     image: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=600&q=80",
-    coverImage: "https://images.unsplash.com/photo-1598103442097-8b743e4b3a7a?auto=format&fit=crop&w=800&q=80",
+    coverImage: "https://plus.unsplash.com/premium_photo-1661677825991-caa232fea9da?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZWFzdGVybiUyMGV1cm9wZWFuJTIwZm9vZHxlbnwwfHwwfHx8MA%3D%3D",
     rate: 100,
   },
 ];

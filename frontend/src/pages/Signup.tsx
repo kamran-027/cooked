@@ -10,12 +10,15 @@ import { BackgroundBeams } from "@/components/ui/background-beams";
 import AppLogo from "@/assets/Cooked_Logo.png";
 import { Eye, EyeOff } from "lucide-react";
 
+import { useUser } from "../contexts/UserContext";
+
 const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { setUser } = useUser();
 
   const signUpUser = async () => {
     const res = await api.post(`/user/signup`, {
@@ -29,9 +32,16 @@ const SignUp = () => {
   const { mutate: handleUserSubmit, isPending } = useMutation({
     mutationKey: ["signup"],
     mutationFn: signUpUser,
-    onSuccess() {
+    onSuccess(response) {
+      sessionStorage.setItem("token", response.token);
+      setUser({
+        id: response.userId,
+        name,
+        email,
+        role: "USER",
+      });
       toast.success("User Signed Up Successfully!");
-      navigate("/signin");
+      navigate("/dashboard");
     },
     onError(error: any) {
       toast.error(error?.response?.data?.message || "Error Signing Up!");
