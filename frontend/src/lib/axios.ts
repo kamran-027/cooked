@@ -20,7 +20,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    const isAuthRequest = error.config?.url?.includes("/user/login");
+    if (error.response && error.response.status === 401 && !isAuthRequest) {
       sessionStorage.removeItem("token");
       window.dispatchEvent(new Event("auth:logout"));
       window.location.href = "/signin";

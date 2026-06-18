@@ -37,6 +37,7 @@ const SignIn = () => {
     },
     onError(error: any) {
       toast.error(
+        error?.response?.data?.error ||
         error?.response?.data?.message ||
         "Error Signing In! Please check details again",
       );
